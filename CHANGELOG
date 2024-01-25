@@ -1,1 +1,11 @@
-1/24/24 - 8:49 pm = init commit
+commit d4bc40c00f512120ae4191f590fac67fda0acabc
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Wed Jan 24 20:56:41 2024 -0600
+
+    init commit
+
+commit 57dcefafa25461796b71051350b360e6a1bb6b3f
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Wed Jan 24 20:55:03 2024 -0600
+
+    Initial commit
