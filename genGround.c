@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
 
 
 #define Y_HEIGHT 21 //Y axis of map
@@ -26,7 +27,11 @@ char map[Y_HEIGHT][X_HEIGHT]; //is the section of map being generated
 
 int exitxy[4][2]; //is the xy of each exit going 0 - North, 1 - South, 2 - West, 3 - East
 
+bool cdone = false, mdone = false;
+
 void startGround();
+void NSshops(int i, int y, int x);
+int EWshops(int i, int y, int x);
 
 void fill(int i, int x, int y, int w, int z){ //fills in the ground
     char filler;
@@ -174,22 +179,27 @@ void NtoSPath(){
 }
 
 void EtoWPath(){
+
     for(int i = 0; i < (X_HEIGHT / 2) + 1; i++){ //west
         map[exitxy[2][1]][i] = ROAD;
     }
 
-    for(int i = 0; i < (X_HEIGHT / 2); i++){ //east
+    for(int i = 1; i < (X_HEIGHT / 2); i++){ //east
         map[exitxy[3][1]][X_HEIGHT - i] = ROAD;
     }
 
     if(exitxy[3][1] - exitxy[2][1] > 0){ //east down
         for(int i = 0; i < exitxy[3][1] - exitxy[2][1]; i++){ //east connection
             map[exitxy[2][1] + i][(X_HEIGHT / 2) + 1] = ROAD;
+            if(i == 2){EWshops(i, 2, 1);i++;}
+            if(i == 6){EWshops(i, 2, 1);i++;}
         }
     }
     else{
         for(int i = 0; i < exitxy[2][1] - exitxy[3][1]; i++){ //east connection
             map[exitxy[3][1] + i][(X_HEIGHT / 2)] = ROAD;
+            if(i == 6){EWshops(i, 3, 1); i++;}
+            if(i == 2){EWshops(i, 3, 1); i++;}
         }
     }
 }
@@ -198,6 +208,43 @@ void path(){//makes path from exit to exit
     NtoSPath();
 
     EtoWPath();
+}
+
+int EWshops(int i, int y, int x){
+    if(cdone != true){
+        map[exitxy[y][x] + i][(X_HEIGHT / 2)] = CENTER;
+        map[exitxy[y][x] + i + 1][(X_HEIGHT / 2)] = CENTER;
+        map[exitxy[y][x] + i][(X_HEIGHT / 2) + 1] = CENTER;
+        map[exitxy[y][x] + i + 1][(X_HEIGHT / 2) + 1] = CENTER;
+        cdone = true;
+        return 0;
+    }
+    else if(mdone != true){
+        map[exitxy[y][x] + i][(X_HEIGHT / 2)] = MARKET;
+        map[exitxy[y][x] + i + 1][(X_HEIGHT / 2)] = MARKET;
+        map[exitxy[y][x] + i][(X_HEIGHT / 2) + 1] = MARKET;
+        map[exitxy[y][x] + i + 1][(X_HEIGHT / 2) + 1] = MARKET;
+        mdone = true;
+        return 0;
+    }
+    return 0;
+}
+
+void NSshops(int i, int y, int x){
+    if(cdone != true){
+        map[i][exitxy[y][x]] = CENTER;
+        map[i + 1][exitxy[y][x] + 1] = CENTER;
+        map[i][exitxy[y][x] + 1] = CENTER;
+        map[i + 1][exitxy[y][x]] = CENTER;
+        cdone = true;
+    }
+    else if(mdone != true){
+        map[i][exitxy[y][x]] = MARKET;
+        map[i + 1][exitxy[y][x] + 1] = MARKET;
+        map[i][exitxy[y][x] + 1] = MARKET;
+        map[i + 1][exitxy[y][x]] = MARKET;
+        mdone = true;
+    }
 }
 
 void printmap(){ //prints the map

@@ -1,3 +1,15 @@
+commit a347b21fe9b2ba2a63cfbe8e3b3d5c855c8a84f7
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Jan 28 22:21:07 2024 -0600
+
+    paths work and exits can not be on the corners
+
+commit 8e750863e5959754d9e83774d9d5c77ebcc9d094
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Jan 28 21:08:11 2024 -0600
+
+    exits are added
+
 commit 1ebdb927a64156e22f13e033e3a61790496218e0
 Author: Haakon H <hhaus532@iastate.edu>
 Date:   Sun Jan 28 20:22:48 2024 -0600
