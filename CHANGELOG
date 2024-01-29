@@ -1,3 +1,15 @@
+commit 1ebdb927a64156e22f13e033e3a61790496218e0
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Jan 28 20:22:48 2024 -0600
+
+    basics of the floor are working
+
+commit 7ed9c25e3fefb1a89bd40eb9478efea753efcf83
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Thu Jan 25 12:42:20 2024 -0600
+
+    change log added
+
 commit d4bc40c00f512120ae4191f590fac67fda0acabc
 Author: Haakon H <hhaus532@iastate.edu>
 Date:   Wed Jan 24 20:56:41 2024 -0600
