@@ -23,7 +23,8 @@
 //#define PLAYER '@' 
 
 char map[Y_HEIGHT][X_HEIGHT]; //is the section of map being generated
-int exitxy[4][2]; //is the xy of each exit going North, East, South, West
+
+int exitxy[4][2]; //is the xy of each exit going 0 - North, 1 - South, 2 - West, 3 - East
 
 void startGround();
 
@@ -93,9 +94,9 @@ void startGround(){
         w = rand() % X_HEIGHT;
         z = rand() % Y_HEIGHT;
 
-        printf("\ni = %d\n", i);
-        printf("%d\n", x - w);
-        printf("%d\n", y - z);
+        // printf("\ni = %d\n", i);
+        // printf("%d\n", x - w);
+        // printf("%d\n", y - z);
 
         fill(i, x, y, w, z);
     }
@@ -116,12 +117,16 @@ void leave(){//makes the exits and stores them
     x = rand() % X_HEIGHT; //N
     y = 0;
 
+    if(x == 0){ x += 1;}
+
     map[y][x] = ROAD;
     exitxy[0][0] = x;
     exitxy[0][1] = y;
 
     x = rand() % X_HEIGHT; //S
     y = Y_HEIGHT - 1;
+
+    if(x == 0){ x += 1;}
 
     map[y][x] = ROAD;
     exitxy[1][0] = x;
@@ -130,6 +135,8 @@ void leave(){//makes the exits and stores them
     x = 0; //W
     y = rand() % Y_HEIGHT;
 
+    if(y == 0){ y += 1;}
+
     map[y][x] = ROAD;
     exitxy[2][0] = x;
     exitxy[2][1] = y;
@@ -137,26 +144,66 @@ void leave(){//makes the exits and stores them
     x = X_HEIGHT - 1;//E
     y = rand() % Y_HEIGHT;
 
+    if(y == 0){ y += 1;}
+
     map[y][x] = ROAD;
     exitxy[3][0] = x;
     exitxy[3][1] = y;
 
-    // for(int y = 0; y < 4; y++){
-    //     for(int x = 0; x < 2; x++){
-    //         printf("%c", exitxy[y][x]);
-    //     }
-    //     printf("\n");
-    // }
 }
 
-void path(){//amkes path from exit to exit
-    
+void NtoSPath(){
+    for(int i = 0; i < (Y_HEIGHT / 2) + 1; i++){ //N down
+        map[i][exitxy[0][0]] = ROAD;
+    }
+
+    for(int i = 0; i < (Y_HEIGHT / 2) + 1; i++){//S up
+        map[Y_HEIGHT - i][exitxy[1][0]] = ROAD;
+    }
+
+    if(exitxy[1][0] - exitxy[0][0] > 0){
+        for(int i = 0; i <= exitxy[1][0] - exitxy[0][0]; i++){ //left connection
+            map[(Y_HEIGHT / 2) + 1][exitxy[0][0] + i] = ROAD;
+        }
+    }
+    else{
+        for(int i = 0; i <= exitxy[0][0] - exitxy[1][0]; i++){ //right connection
+            map[(Y_HEIGHT / 2) + 1][exitxy[1][0] + i] = ROAD;
+        }
+    }
+}
+
+void EtoWPath(){
+    for(int i = 0; i < (X_HEIGHT / 2) + 1; i++){ //west
+        map[exitxy[2][1]][i] = ROAD;
+    }
+
+    for(int i = 0; i < (X_HEIGHT / 2); i++){ //east
+        map[exitxy[3][1]][X_HEIGHT - i] = ROAD;
+    }
+
+    if(exitxy[3][1] - exitxy[2][1] > 0){ //east down
+        for(int i = 0; i < exitxy[3][1] - exitxy[2][1]; i++){ //east connection
+            map[exitxy[2][1] + i][(X_HEIGHT / 2) + 1] = ROAD;
+        }
+    }
+    else{
+        for(int i = 0; i < exitxy[2][1] - exitxy[3][1]; i++){ //east connection
+            map[exitxy[3][1] + i][(X_HEIGHT / 2)] = ROAD;
+        }
+    }
+}
+
+void path(){//makes path from exit to exit
+    NtoSPath();
+
+    EtoWPath();
 }
 
 void printmap(){ //prints the map
     for(int y = 0; y < Y_HEIGHT; y++){
         for(int x = 0; x < X_HEIGHT; x++){
-            printf("%c", map[y][x]);
+            printf("%1c", map[y][x]);
         }
         printf("\n");
     }
@@ -171,9 +218,10 @@ int main(int argc, char *argv[]){
         }
     }
 
-    for(int i = 0; i <= 10; i++){
+    for(int i = 0; i <= 150; i++){
         startGround(); //fills the map with the ground envirments 
     }
+
     border();
 
     leave();
