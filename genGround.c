@@ -49,37 +49,37 @@ void fill(int i, int x, int y, int w, int z){ //fills in the ground
         break;
     }
 
-    //if(x < w && y < z){//Q1
+    if(x < w && y < z){//Q1
         for (int l = x; l <= w; l++){
             for (int h = y; h <= z; h++){
                 map[l][h] = filler;
             }
         }
-    //}
+    }
 
-    //if(x > w && y > z){//Q3
+    if(x > w && y > z){//Q3
         for (int l = w; l <= x; l++){
             for (int h = z; h <= y; h++){
                 map[l][h] = filler;
             }
         }
-    //}
+    }
 
-    //if(x > w && y < z){//Q4
+    if(x > w && y < z){//Q4
         for (int l = w; l <= x; l++){
             for (int h = y; h <= z; h++){
                 map[l][h] = filler;
             }
         }
-    //}
+    }
 
-    //if(x < w && y > z){//Q2
+    if(x < w && y > z){//Q2
         for (int l = x; l <= w; l++){
             for (int h = z; h <= y; h++){
                 map[l][h] = filler;
             }
         }
-    //}
+    }
 
     if(x == w && y == z) {startGround();} //retry
 }
@@ -89,10 +89,10 @@ void startGround(){
     int w,z; // ending points 
 
     for(int i; i < 4; i++){
-        x = rand() % X_HEIGHT;
-        y = rand() % Y_HEIGHT; 
-        w = rand() % X_HEIGHT;
-        z = rand() % Y_HEIGHT;
+        x = rand() % 100;
+        y = rand() % 100; 
+        w = rand() % 100;
+        z = rand() % 100;
 
         // printf("\ni = %d\n", i);
         // printf("%d\n", x - w);
@@ -218,7 +218,7 @@ int main(int argc, char *argv[]){
         }
     }
 
-    for(int i = 0; i <= 150; i++){
+    for(int i = 0; i <= 5; i++){
         startGround(); //fills the map with the ground envirments 
     }
 
