@@ -23,9 +23,19 @@
 
 //#define PLAYER '@' 
 
+/*
+TODO
+- make center and market random placements on the path
+- make either 
+    - seed regons 
+    - add a region generator that forces current types of regons to be made at some point
+        so that the map is more filled
+    - comment what stuff does
+*/
+
 char map[Y_HEIGHT][X_HEIGHT]; //is the section of map being generated
 
-int exitxy[4][2]; //is the xy of each exit going 0 - North, 1 - South, 2 - West, 3 - East
+int exitxy[4][2]; //is the xy of each exit going 0 - North, 1 - South, 2 - West, 3 - East [waht exit] then [][0] x and [][1] y
 
 bool cdone = false, mdone = false;
 
@@ -50,6 +60,8 @@ void fill(int i, int x, int y, int w, int z){ //fills in the ground
     case 3:
         filler = LONG_GRASS;
         break;
+    case 4:
+        filler = CLEARING;
     default:
         break;
     }
@@ -85,15 +97,13 @@ void fill(int i, int x, int y, int w, int z){ //fills in the ground
             }
         }
     }
-
-    if(x == w && y == z) {startGround();} //retry
 }
 
 void startGround(){
     int x,y; // the starting points for the ground rectangle
     int w,z; // ending points 
 
-    for(int i; i < 4; i++){
+    for(int i = 0; i <= 4; i++){
         x = rand() % 100;
         y = rand() % 100; 
         w = rand() % 100;
@@ -105,6 +115,24 @@ void startGround(){
 
         fill(i, x, y, w, z);
     }
+
+
+    //TODO works for now but inconsant
+    for(int i = 0; i < 2; i++){ //two tall grass regons
+        x = rand() % 100;
+        y = rand() % 100; 
+        w = rand() % 100;
+        z = rand() % 100;
+
+        fill(3, x, y, w, z);
+    }
+
+    x = rand() % 79 ;
+    y = rand() % 21; 
+    w = rand() % 79;
+    z = rand() % 21;
+
+    fill(0, x, y, w, z);
 }
 
 void border(){//fills the borders with rocks
@@ -123,6 +151,7 @@ void leave(){//makes the exits and stores them
     y = 0;
 
     if(x == 0){ x += 1;}
+    if(x == X_HEIGHT){ x -= 1;}
 
     map[y][x] = ROAD;
     exitxy[0][0] = x;
@@ -132,6 +161,7 @@ void leave(){//makes the exits and stores them
     y = Y_HEIGHT - 1;
 
     if(x == 0){ x += 1;}
+    if(x == X_HEIGHT){ x -= 1;}
 
     map[y][x] = ROAD;
     exitxy[1][0] = x;
@@ -141,6 +171,7 @@ void leave(){//makes the exits and stores them
     y = rand() % Y_HEIGHT;
 
     if(y == 0){ y += 1;}
+    if(y == Y_HEIGHT){ y -= 1;}
 
     map[y][x] = ROAD;
     exitxy[2][0] = x;
@@ -150,6 +181,7 @@ void leave(){//makes the exits and stores them
     y = rand() % Y_HEIGHT;
 
     if(y == 0){ y += 1;}
+    if(y == Y_HEIGHT + 1){ y -= 1;}
 
     map[y][x] = ROAD;
     exitxy[3][0] = x;
@@ -160,25 +192,12 @@ void leave(){//makes the exits and stores them
 void NtoSPath(){
     for(int i = 0; i < (Y_HEIGHT / 2) + 1; i++){ //N down
         map[i][exitxy[0][0]] = ROAD;
+
     }
 
     for(int i = 0; i < (Y_HEIGHT / 2) + 1; i++){//S up
         map[Y_HEIGHT - i][exitxy[1][0]] = ROAD;
     }
-
-    if(exitxy[1][0] - exitxy[0][0] > 0){
-        for(int i = 0; i <= exitxy[1][0] - exitxy[0][0]; i++){ //left connection
-            map[(Y_HEIGHT / 2) + 1][exitxy[0][0] + i] = ROAD;
-        }
-    }
-    else{
-        for(int i = 0; i <= exitxy[0][0] - exitxy[1][0]; i++){ //right connection
-            map[(Y_HEIGHT / 2) + 1][exitxy[1][0] + i] = ROAD;
-        }
-    }
-}
-
-void EtoWPath(){
 
     for(int i = 0; i < (X_HEIGHT / 2) + 1; i++){ //west
         map[exitxy[2][1]][i] = ROAD;
@@ -188,62 +207,94 @@ void EtoWPath(){
         map[exitxy[3][1]][X_HEIGHT - i] = ROAD;
     }
 
+}
+
+void EtoWPath(){
+
+    if(exitxy[1][0] - exitxy[0][0] > 0){
+        for(int i = 0; i <= exitxy[1][0] - exitxy[0][0]; i++){ //left connection
+            map[(Y_HEIGHT / 2) + 1][exitxy[0][0] + i] = ROAD;
+            if(i == 2){NSshops(i, 0, 0);i++;} 
+            if(i == rand() % 10){NSshops(i, 0, 0);i++;} 
+        }
+    }
+    else{
+        for(int i = 0; i <= exitxy[0][0] - exitxy[1][0]; i++){ //right connection
+            map[(Y_HEIGHT / 2) + 1][exitxy[1][0] + i] = ROAD;
+            if(i == 2){NSshops(i, 1, 0);i++;} 
+            if(i == rand() % 10){NSshops(i, 1, 0);i++;} 
+        }
+    }
+
+    cdone = false;
+    mdone = false;
+
     if(exitxy[3][1] - exitxy[2][1] > 0){ //east down
         for(int i = 0; i < exitxy[3][1] - exitxy[2][1]; i++){ //east connection
             map[exitxy[2][1] + i][(X_HEIGHT / 2) + 1] = ROAD;
-            if(i == 2){EWshops(i, 2, 1);i++;}
-            if(i == 6){EWshops(i, 2, 1);i++;}
+            if(i == 2){EWshops(i, 2, 1);i++;} 
+            if(i == rand() % 10){EWshops(i, 2, 1);i++;}
         }
     }
     else{
         for(int i = 0; i < exitxy[2][1] - exitxy[3][1]; i++){ //east connection
             map[exitxy[3][1] + i][(X_HEIGHT / 2)] = ROAD;
-            if(i == 6){EWshops(i, 3, 1); i++;}
             if(i == 2){EWshops(i, 3, 1); i++;}
+            if(i == (rand() % 5) + 2){EWshops(i, 3, 1); i++;}
         }
     }
+
+
 }
+
 
 void path(){//makes path from exit to exit
     NtoSPath();
-
     EtoWPath();
 }
 
 int EWshops(int i, int y, int x){
-    if(cdone != true){
+    if(!cdone){
         map[exitxy[y][x] + i][(X_HEIGHT / 2)] = CENTER;
         map[exitxy[y][x] + i + 1][(X_HEIGHT / 2)] = CENTER;
         map[exitxy[y][x] + i][(X_HEIGHT / 2) + 1] = CENTER;
         map[exitxy[y][x] + i + 1][(X_HEIGHT / 2) + 1] = CENTER;
         cdone = true;
-        return 0;
     }
-    else if(mdone != true){
+    else if(!mdone &&
+                (map[exitxy[y][x] + i][(X_HEIGHT / 2)] != CENTER || 
+                map[exitxy[y][x] + i + 1][(X_HEIGHT / 2)] != CENTER ||
+                map[exitxy[y][x] + i][(X_HEIGHT / 2) + 1] != CENTER ||
+                map[exitxy[y][x] + i + 1][(X_HEIGHT / 2) + 1] != CENTER))
+    {
         map[exitxy[y][x] + i][(X_HEIGHT / 2)] = MARKET;
         map[exitxy[y][x] + i + 1][(X_HEIGHT / 2)] = MARKET;
         map[exitxy[y][x] + i][(X_HEIGHT / 2) + 1] = MARKET;
         map[exitxy[y][x] + i + 1][(X_HEIGHT / 2) + 1] = MARKET;
         mdone = true;
-        return 0;
     }
     return 0;
 }
 
 void NSshops(int i, int y, int x){
-    if(cdone != true){
-        map[i][exitxy[y][x]] = CENTER;
-        map[i + 1][exitxy[y][x] + 1] = CENTER;
-        map[i][exitxy[y][x] + 1] = CENTER;
-        map[i + 1][exitxy[y][x]] = CENTER;
-        cdone = true;
-    }
-    else if(mdone != true){
-        map[i][exitxy[y][x]] = MARKET;
-        map[i + 1][exitxy[y][x] + 1] = MARKET;
-        map[i][exitxy[y][x] + 1] = MARKET;
-        map[i + 1][exitxy[y][x]] = MARKET;
+    if(!mdone){
+        map[Y_HEIGHT/2][exitxy[y][x] + i] = MARKET;
+        map[Y_HEIGHT/2][exitxy[y][x] + i + 1] = MARKET;
+        map[Y_HEIGHT/2 + 1][exitxy[y][x] + i] = MARKET;
+        map[Y_HEIGHT/2 + 1][exitxy[y][x] + i + 1] = MARKET;
         mdone = true;
+    }
+    else if(!cdone && 
+                    (map[Y_HEIGHT/2][exitxy[y][x] + i] != MARKET || 
+                    map[Y_HEIGHT/2][exitxy[y][x] + i + 1] != MARKET ||
+                    map[Y_HEIGHT/2 + 1][exitxy[y][x] + i] != MARKET ||
+                    map[Y_HEIGHT/2 + 1][exitxy[y][x] + i + 1] != MARKET))
+    {
+        map[Y_HEIGHT/2][exitxy[y][x] + i] = CENTER;
+        map[Y_HEIGHT/2][exitxy[y][x] + i + 1] = CENTER;
+        map[Y_HEIGHT/2 + 1][exitxy[y][x] + i] = CENTER;
+        map[Y_HEIGHT/2 + 1][exitxy[y][x] + i + 1] = CENTER;
+        cdone = true;
     }
 }
 

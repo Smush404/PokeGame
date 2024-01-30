@@ -1,3 +1,15 @@
+commit 7fa8255852b4bf0a7116c3841d7d2b851598ccd1
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Jan 28 23:19:08 2024 -0600
+
+    market and center are added but are not random
+
+commit 9fa0043e8d60c7955940fdd4bb78a560e1a47f75
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Jan 28 22:33:35 2024 -0600
+
+    fixed generation bug
+
 commit a347b21fe9b2ba2a63cfbe8e3b3d5c855c8a84f7
 Author: Haakon H <hhaus532@iastate.edu>
 Date:   Sun Jan 28 22:21:07 2024 -0600
