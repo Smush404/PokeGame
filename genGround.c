@@ -168,7 +168,7 @@ void leave(){//makes the exits and stores them
     exitxy[1][1] = y;
 
     x = 0; //W
-    y = rand() % Y_HEIGHT;
+    y = rand() % Y_HEIGHT - 1;
 
     if(y == 0){ y += 1;}
     if(y == Y_HEIGHT){ y -= 1;}
@@ -178,7 +178,7 @@ void leave(){//makes the exits and stores them
     exitxy[2][1] = y;
 
     x = X_HEIGHT - 1;//E
-    y = rand() % Y_HEIGHT;
+    y = rand() % Y_HEIGHT - 1;
 
     if(y == 0){ y += 1;}
     if(y == Y_HEIGHT + 1){ y -= 1;}
@@ -192,7 +192,6 @@ void leave(){//makes the exits and stores them
 void NtoSPath(){
     for(int i = 0; i < (Y_HEIGHT / 2) + 1; i++){ //N down
         map[i][exitxy[0][0]] = ROAD;
-
     }
 
     for(int i = 0; i < (Y_HEIGHT / 2) + 1; i++){//S up
@@ -215,14 +214,14 @@ void EtoWPath(){
         for(int i = 0; i <= exitxy[1][0] - exitxy[0][0]; i++){ //left connection
             map[(Y_HEIGHT / 2) + 1][exitxy[0][0] + i] = ROAD;
             if(i == 2){NSshops(i, 0, 0);i++;} 
-            if(i == rand() % 10){NSshops(i, 0, 0);i++;} 
+            else if(i == rand() % 10){NSshops(i, 0, 0);i++;} 
         }
     }
     else{
         for(int i = 0; i <= exitxy[0][0] - exitxy[1][0]; i++){ //right connection
             map[(Y_HEIGHT / 2) + 1][exitxy[1][0] + i] = ROAD;
             if(i == 2){NSshops(i, 1, 0);i++;} 
-            if(i == rand() % 10){NSshops(i, 1, 0);i++;} 
+            else if(i == rand() % 10){NSshops(i, 1, 0);i++;} 
         }
     }
 
@@ -230,14 +229,14 @@ void EtoWPath(){
     mdone = false;
 
     if(exitxy[3][1] - exitxy[2][1] > 0){ //east down
-        for(int i = 0; i < exitxy[3][1] - exitxy[2][1]; i++){ //east connection
+        for(int i = 0; i <= exitxy[3][1] - exitxy[2][1]; i++){ //east connection
             map[exitxy[2][1] + i][(X_HEIGHT / 2) + 1] = ROAD;
             if(i == 2){EWshops(i, 2, 1);i++;} 
             if(i == rand() % 10){EWshops(i, 2, 1);i++;}
         }
     }
     else{
-        for(int i = 0; i < exitxy[2][1] - exitxy[3][1]; i++){ //east connection
+        for(int i = 0; i <= exitxy[2][1] - exitxy[3][1]; i++){ //east connection
             map[exitxy[3][1] + i][(X_HEIGHT / 2)] = ROAD;
             if(i == 2){EWshops(i, 3, 1); i++;}
             if(i == (rand() % 5) + 2){EWshops(i, 3, 1); i++;}
@@ -262,9 +261,9 @@ int EWshops(int i, int y, int x){
         cdone = true;
     }
     else if(!mdone &&
-                (map[exitxy[y][x] + i][(X_HEIGHT / 2)] != CENTER || 
-                map[exitxy[y][x] + i + 1][(X_HEIGHT / 2)] != CENTER ||
-                map[exitxy[y][x] + i][(X_HEIGHT / 2) + 1] != CENTER ||
+                (map[exitxy[y][x] + i][(X_HEIGHT / 2)] != CENTER &&
+                map[exitxy[y][x] + i + 1][(X_HEIGHT / 2)] != CENTER &&
+                map[exitxy[y][x] + i][(X_HEIGHT / 2) + 1] != CENTER &&
                 map[exitxy[y][x] + i + 1][(X_HEIGHT / 2) + 1] != CENTER))
     {
         map[exitxy[y][x] + i][(X_HEIGHT / 2)] = MARKET;
