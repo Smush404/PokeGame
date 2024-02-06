@@ -23,15 +23,6 @@
 
 //#define PLAYER '@' 
 
-/*
-TODO
-- make center and market random placements on the path
-- make either 
-    - seed regons 
-    - add a region generator that forces current types of regons to be made at some point
-        so that the map is more filled
-    - comment what stuff does
-*/
 
 char map[Y_HEIGHT][X_HEIGHT]; //is the section of map being generated
 
@@ -192,18 +183,22 @@ void leave(){//makes the exits and stores them
 void NtoSPath(){
     for(int i = 0; i < (Y_HEIGHT / 2) + 1; i++){ //N down
         map[i][exitxy[0][0]] = ROAD;
+        //if(i == rand() % 25){NSshops(i, 0, 0);}
     }
 
     for(int i = 0; i < (Y_HEIGHT / 2) + 1; i++){//S up
         map[Y_HEIGHT - i][exitxy[1][0]] = ROAD;
+        //if(i == rand() % 25){NSshops(i, 1, 0);}
     }
 
     for(int i = 0; i < (X_HEIGHT / 2) + 1; i++){ //west
         map[exitxy[2][1]][i] = ROAD;
+        //if(i == rand() % 25){EWshops(i, 2, 1);}
     }
 
     for(int i = 1; i < (X_HEIGHT / 2); i++){ //east
         map[exitxy[3][1]][X_HEIGHT - i] = ROAD;
+        //if(i == rand() % 25){EWshops(i, 3, 1);}
     }
 
 }
