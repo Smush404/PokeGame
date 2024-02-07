@@ -69,7 +69,7 @@ typedef struct map {
 //=============globals==========
 map_t world[402][402];
 int count = 1;
-int y = 5, x = 5;
+int y = 200, x = 200;
 
 static int32_t path_cmp(const void *key, const void *with) {
   return ((path_t *) key)->cost - ((path_t *) with)->cost;
@@ -720,19 +720,33 @@ static void check_ends(uint8_t *n, uint8_t *s, uint8_t *e, uint8_t *w){
 
 }
 
+static void chance_building(map_t *m){
+  double chance = ((((double)((-45 * (y))/200) + 50)/100) + (((double)((-45 * (x))/200) + 50)/100));
+  if(chance < 0){chance = chance * -1;}
+
+  if(y == 200 && x == 200){
+    place_pokemart(m);
+    place_center(m);
+  }
+  else if((double) rand() / RAND_MAX > chance){
+    place_pokemart(m);
+    place_center(m);
+  }
+}
+
 static int new_map(map_t *m)
 {
   uint8_t n = 1 + rand() % (MAP_X - 2), s = 1 + rand() % (MAP_X - 2),e = 1 + rand() % (MAP_Y - 2),w = 1 + rand() % (MAP_Y - 2);
-
+  
   check_ends(&n, &s, &e, &w);
   smooth_height(m);
   map_terrain(m, n, s, e, w);
   place_boulders(m);
   place_trees(m);
   build_paths(m);
-  place_pokemart(m);
-  place_center(m);
-printf("here %d\n", 300);
+
+  chance_building(m);
+
   return 0;
 }
 
@@ -840,40 +854,39 @@ int genworld(){
 
   int reposne; //response from methods to know if error
   while(count < 402){
-    printf("(%d,%d)\n",y,x);
     print_map(&world[y][x]);
+    printf("(%d,%d)\n",x-200,y-200);
 
     printf("%s", "Where do you want to go (n, s, e, w, f, q) ");
     scanf(" %c", &answer);
-    printf("\n");
 
     if(answer == 'q'){count = 402;} //quiting
 
-    if(answer == 'n'){ //north
+    else if(answer == 'n'){ //north
       reposne = north();
       if(reposne > 0){ printf("%s", "can not go north");}
       else{count++;}
     }
 
-    if(answer == 's'){//south
+    else if(answer == 's'){//south
       reposne = south();
       if(reposne > 0){ printf("%s", "can not go south");}
       else{count++;}
     }
 
-    if(answer == 'e'){//east
+    else if(answer == 'e'){//east
       reposne = east();
       if(reposne > 0){printf("%s", "can not go east");}
       else{count++;}
     }
 
-    if(answer == 'w'){//west
+    else if(answer == 'w'){//west
       reposne = west();
       if(reposne > 0){printf("%s", "can not go west");}
       else{count++;}
     }
 
-    if(answer == 'f'){ //flying
+    else if(answer == 'f'){ //flying
       int mod_y = -2, mod_x = -2;
 
       printf("what x? \n");
@@ -900,6 +913,10 @@ int genworld(){
 
       world[y][x] = tmp;
     }
+    else{
+      printf("invild input");
+    }
+    printf("\n");
   }
 
   return 0;
