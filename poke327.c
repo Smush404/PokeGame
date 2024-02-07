@@ -67,9 +67,9 @@ typedef struct map {
 } map_t;
 
 //=============globals==========
-map_t world[401][401];
+map_t world[402][402];
 int count = 1;
-int y = 200, x = 200;
+int y = 5, x = 5;
 
 static int32_t path_cmp(const void *key, const void *with) {
   return ((path_t *) key)->cost - ((path_t *) with)->cost;
@@ -678,28 +678,53 @@ static int place_trees(map_t *m)
 }
 
 static void check_ends(uint8_t *n, uint8_t *s, uint8_t *e, uint8_t *w){
-
-  if(world[y+1][x].n > 0){ //south gate
-    *s = world[y+1][x].n;
+  //printf("here %d\n", y);
+  if(y+1 < 402){
+    if(world[y+1][x].n > 0){ //south gate
+      *s = world[y+1][x].n;
+    }
   }
-
-  if(world[y-1][x].s > 0){ //north gate
+  else if(y + 1 == 402){
+    printf("can not go south");
+  }
+  if(y - 1 > -1){
+  if(world[y-1][x].s > 0 && y-1 > 0){ //north gate
     *n = world[y-1][x].s;
   }
+  }
+  else if(y - 1 == -1) { 
+    printf("can not go north");
+  }
+  if(x + 1 < 402){
+    if(world[y][x+1].w > 0){ //east gate
+      *e = world[y][x+1].w;
+    }
+  }
+  else if(x + 1 == 402) { 
+    printf("can not go east");
+  }
 
-  if(world[y][x+1].w > 0){ //east gate
-    *e = world[y][x+1].w;
+  if(x - 1 > -1){
+    if(world[y][x-1].e > 0){ //west gate
+      *w = world[y][x-1].e;
+    }
   }
-  if(world[y][x-1].e > 0){ //west gate
-    *w = world[y][x-1].e;
+  else if(x - 1 == -1) { 
+    printf("can not go west");
   }
+
+  if(y+1 == 402){*s = 0;}
+  if(y-1 == -1){*n = 0;}
+  if(x+1 == 402){*e = 0;}
+  if(x-1 == -1){*w = 0;}
+
 }
 
 static int new_map(map_t *m)
 {
   uint8_t n = 1 + rand() % (MAP_X - 2), s = 1 + rand() % (MAP_X - 2),e = 1 + rand() % (MAP_Y - 2),w = 1 + rand() % (MAP_Y - 2);
-  check_ends(&n, &s, &e, &w);
 
+  check_ends(&n, &s, &e, &w);
   smooth_height(m);
   map_terrain(m, n, s, e, w);
   place_boulders(m);
@@ -707,7 +732,7 @@ static int new_map(map_t *m)
   build_paths(m);
   place_pokemart(m);
   place_center(m);
-
+printf("here %d\n", 300);
   return 0;
 }
 
@@ -773,11 +798,12 @@ int north(){
 }
 
 int south(){
-  if(y + 1 <= 401){y++;} 
+  if(y + 1 < 402){y++;} 
   else{return 1;}
 
   if(world[y][x].n > 0){return 0;} //how to check if it is already fill
 
+  
   map_t tmp;
   new_map(&tmp);
   world[y][x] = tmp;
@@ -786,7 +812,7 @@ int south(){
   }
 
 int east(){
-  if(x + 1 <= 401){x++;} 
+  if(x + 1 < 402){x++;} 
   else{return 1;}
   if(world[y][x].n > 0){return 0;} //how to check if it is already fill
 
@@ -798,9 +824,9 @@ int east(){
 }
 
 int west(){
-  if(x - 1 >= 0){x--;} 
+  if(x - 1 > 0){x--;} 
   else{return 1;}
-  if(world[y][x - 1].n > 0){return 0;} //how to check if it is already fill
+  if(world[y][x].n > 0){return 0;} //how to check if it is already fill
 
   map_t tmp;
   new_map(&tmp);
@@ -813,7 +839,7 @@ int genworld(){
   char answer; //reposne
 
   int reposne; //response from methods to know if error
-  while(count < 401){
+  while(count < 402){
     printf("(%d,%d)\n",y,x);
     print_map(&world[y][x]);
 
@@ -821,7 +847,7 @@ int genworld(){
     scanf(" %c", &answer);
     printf("\n");
 
-    if(answer == 'q'){count = 401;} //quiting
+    if(answer == 'q'){count = 402;} //quiting
 
     if(answer == 'n'){ //north
       reposne = north();
@@ -847,13 +873,33 @@ int genworld(){
       else{count++;}
     }
 
-    // if(answer = 'f'){ //flying
-    //   print_map(&world[y][x]);
-    //   scanf(" %d", y_mod);
-    //   scanf(" %d", x_mod);
-      
-    //   fly(y, x);
-    // }
+    if(answer == 'f'){ //flying
+      int mod_y = -2, mod_x = -2;
+
+      printf("what x? \n");
+      scanf(" %d", &mod_x);
+      while(mod_x < -1 || mod_x > 402){
+          printf("x is out of bounds \n");
+          printf("what x? \n");
+          scanf(" %d", &mod_x);
+      }
+
+      printf("what y? \n");
+      scanf(" %d", &mod_y);
+      while(mod_y < -1 || mod_y > 402){
+          printf("y is out of bounds \n");
+          printf("what y? \n");
+          scanf(" %d", &mod_y);
+      }
+
+      y = mod_y;
+      x = mod_x;
+
+      map_t tmp;
+      new_map(&tmp);
+
+      world[y][x] = tmp;
+    }
   }
 
   return 0;
