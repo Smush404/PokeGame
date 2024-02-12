@@ -54,6 +54,7 @@ typedef struct path {
 #define MIN_BOULDERS       10
 #define TREE_PROB          95
 #define BOULDER_PROB       95
+#define WROLD_SIZE         401
 
 #define mappair(pair) (m->map[pair[dim_y]][pair[dim_x]])
 #define mapxy(x, y) (m->map[y][x])
@@ -67,7 +68,7 @@ typedef struct map {
 } map_t;
 
 //=============globals==========
-map_t world[402][402];
+map_t world[WROLD_SIZE][WROLD_SIZE];
 int count = 1;
 int y = 200, x = 200;
 
@@ -109,6 +110,7 @@ static void dijkstra_path(map_t *m, pair_t from, pair_t to)
 
   for (y = 1; y < MAP_Y - 1; y++) {
     for (x = 1; x < MAP_X - 1; x++) {
+      //if(ter_cost != INT_MAX) 
       path[y][x].hn = heap_insert(&h, &path[y][x]);
     }
   }
@@ -116,8 +118,8 @@ static void dijkstra_path(map_t *m, pair_t from, pair_t to)
   while ((p = heap_remove_min(&h))) {
     p->hn = NULL;
 
-    if ((p->pos[dim_y] == to[dim_y]) && p->pos[dim_x] == to[dim_x]) {
-      for (x = to[dim_x], y = to[dim_y];
+    if ((p->pos[dim_y] == to[dim_y]) && p->pos[dim_x] == to[dim_x]) { //pathfinding - no need stops before map is found
+       for (x = to[dim_x], y = to[dim_y];
            (x != from[dim_x]) || (y != from[dim_y]);
            p = &path[y][x], x = p->from[dim_x], y = p->from[dim_y]) {
         mapxy(x, y) = ter_path;
@@ -127,10 +129,12 @@ static void dijkstra_path(map_t *m, pair_t from, pair_t to)
       return;
     }
 
+    //these are all to go to the north, south, east, west - I need 8
+
     if ((path[p->pos[dim_y] - 1][p->pos[dim_x]    ].hn) &&
         (path[p->pos[dim_y] - 1][p->pos[dim_x]    ].cost >
          ((p->cost + heightpair(p->pos)) *
-          edge_penalty(p->pos[dim_x], p->pos[dim_y] - 1)))) {
+          edge_penalty(p->pos[dim_x], p->pos[dim_y] - 1)))) { //edge_penalty is not need for pathfinding
       path[p->pos[dim_y] - 1][p->pos[dim_x]    ].cost =
         ((p->cost + heightpair(p->pos)) *
          edge_penalty(p->pos[dim_x], p->pos[dim_y] - 1));
@@ -679,12 +683,12 @@ static int place_trees(map_t *m)
 
 static void check_ends(uint8_t *n, uint8_t *s, uint8_t *e, uint8_t *w){
   //printf("here %d\n", y);
-  if(y+1 < 402){
+  if(y+1 < WROLD_SIZE){
     if(world[y+1][x].n > 0){ //south gate
       *s = world[y+1][x].n;
     }
   }
-  else if(y + 1 == 402){
+  else if(y + 1 == WROLD_SIZE){
     printf("can not go south");
   }
   if(y - 1 > -1){
@@ -695,12 +699,12 @@ static void check_ends(uint8_t *n, uint8_t *s, uint8_t *e, uint8_t *w){
   else if(y - 1 == -1) { 
     printf("can not go north");
   }
-  if(x + 1 < 402){
+  if(x + 1 < WROLD_SIZE){
     if(world[y][x+1].w > 0){ //east gate
       *e = world[y][x+1].w;
     }
   }
-  else if(x + 1 == 402) { 
+  else if(x + 1 == WROLD_SIZE) { 
     printf("can not go east");
   }
 
@@ -713,9 +717,9 @@ static void check_ends(uint8_t *n, uint8_t *s, uint8_t *e, uint8_t *w){
     printf("can not go west");
   }
 
-  if(y+1 == 402){*s = 0;}
+  if(y+1 == WROLD_SIZE){*s = 0;}
   if(y-1 == -1){*n = 0;}
-  if(x+1 == 402){*e = 0;}
+  if(x+1 == WROLD_SIZE){*e = 0;}
   if(x-1 == -1){*w = 0;}
 
 }
@@ -812,7 +816,7 @@ int north(){
 }
 
 int south(){
-  if(y + 1 < 402){y++;} 
+  if(y + 1 < WROLD_SIZE){y++;} 
   else{return 1;}
 
   if(world[y][x].n > 0){return 0;} //how to check if it is already fill
@@ -826,7 +830,7 @@ int south(){
   }
 
 int east(){
-  if(x + 1 < 402){x++;} 
+  if(x + 1 < WROLD_SIZE){x++;} 
   else{return 1;}
   if(world[y][x].n > 0){return 0;} //how to check if it is already fill
 
@@ -853,14 +857,14 @@ int genworld(){
   char answer; //reposne
 
   int reposne; //response from methods to know if error
-  while(count < 402){
+  while(count < WROLD_SIZE){
     print_map(&world[y][x]);
     printf("(%d,%d)\n",x-200,y-200);
 
     printf("%s", "Where do you want to go (n, s, e, w, f, q) ");
     scanf(" %c", &answer);
 
-    if(answer == 'q'){count = 402;} //quiting
+    if(answer == 'q'){count = WROLD_SIZE;} //quiting
 
     else if(answer == 'n'){ //north
       reposne = north();
@@ -891,7 +895,7 @@ int genworld(){
 
       printf("what x? \n");
       scanf(" %d", &mod_x);
-      while(mod_x < -1 || mod_x > 402){
+      while(mod_x < -1 || mod_x > WROLD_SIZE){
           printf("x is out of bounds \n");
           printf("what x? \n");
           scanf(" %d", &mod_x);
@@ -899,7 +903,7 @@ int genworld(){
 
       printf("what y? \n");
       scanf(" %d", &mod_y);
-      while(mod_y < -1 || mod_y > 402){
+      while(mod_y < -1 || mod_y > WROLD_SIZE){
           printf("y is out of bounds \n");
           printf("what y? \n");
           scanf(" %d", &mod_y);
@@ -922,6 +926,98 @@ int genworld(){
   return 0;
 }
 
+//===============1.03===================
+
+static void map_path_hiker(map_t *m, pair_t from, pair_t to)
+{
+  static path_t path[MAP_Y][MAP_X], *p;
+  static uint32_t initialized = 0;
+  heap_t h;
+  uint32_t x, y;
+
+  if (!initialized) {
+    for (y = 0; y < MAP_Y; y++) {
+      for (x = 0; x < MAP_X; x++) {
+        path[y][x].pos[dim_y] = y;
+        path[y][x].pos[dim_x] = x;
+      }
+    }
+    initialized = 1;
+  }
+  
+  for (y = 0; y < MAP_Y; y++) {
+    for (x = 0; x < MAP_X; x++) {
+      path[y][x].cost = INT_MAX;
+    }
+  }
+
+  path[from[dim_y]][from[dim_x]].cost = 0;
+
+  heap_init(&h, path_cmp, NULL);
+
+  for (y = 1; y < MAP_Y - 1; y++) {
+    for (x = 1; x < MAP_X - 1; x++) {
+      path[y][x].hn = heap_insert(&h, &path[y][x]);
+    }
+  }
+
+  while ((p = heap_remove_min(&h))) {
+    p->hn = NULL;
+
+    //these are all to go to the north, south, east, west - I need 8
+
+    if ((path[p->pos[dim_y] - 1][p->pos[dim_x]    ].hn) &&
+        (path[p->pos[dim_y] - 1][p->pos[dim_x]    ].cost >
+         ((p->cost + heightpair(p->pos)) *
+          edge_penalty(p->pos[dim_x], p->pos[dim_y] - 1)))) { //edge_penalty is not need for pathfinding
+      path[p->pos[dim_y] - 1][p->pos[dim_x]    ].cost =
+        ((p->cost + heightpair(p->pos)) *
+         edge_penalty(p->pos[dim_x], p->pos[dim_y] - 1));
+      path[p->pos[dim_y] - 1][p->pos[dim_x]    ].from[dim_y] = p->pos[dim_y];
+      path[p->pos[dim_y] - 1][p->pos[dim_x]    ].from[dim_x] = p->pos[dim_x];
+      heap_decrease_key_no_replace(&h, path[p->pos[dim_y] - 1]
+                                           [p->pos[dim_x]    ].hn);
+    }
+    if ((path[p->pos[dim_y]    ][p->pos[dim_x] - 1].hn) &&
+        (path[p->pos[dim_y]    ][p->pos[dim_x] - 1].cost >
+         ((p->cost + heightpair(p->pos)) *
+          edge_penalty(p->pos[dim_x] - 1, p->pos[dim_y])))) {
+      path[p->pos[dim_y]][p->pos[dim_x] - 1].cost =
+        ((p->cost + heightpair(p->pos)) *
+         edge_penalty(p->pos[dim_x] - 1, p->pos[dim_y]));
+      path[p->pos[dim_y]    ][p->pos[dim_x] - 1].from[dim_y] = p->pos[dim_y];
+      path[p->pos[dim_y]    ][p->pos[dim_x] - 1].from[dim_x] = p->pos[dim_x];
+      heap_decrease_key_no_replace(&h, path[p->pos[dim_y]    ]
+                                           [p->pos[dim_x] - 1].hn);
+    }
+    if ((path[p->pos[dim_y]    ][p->pos[dim_x] + 1].hn) &&
+        (path[p->pos[dim_y]    ][p->pos[dim_x] + 1].cost >
+         ((p->cost + heightpair(p->pos)) *
+          edge_penalty(p->pos[dim_x] + 1, p->pos[dim_y])))) {
+      path[p->pos[dim_y]][p->pos[dim_x] + 1].cost =
+        ((p->cost + heightpair(p->pos)) *
+         edge_penalty(p->pos[dim_x] + 1, p->pos[dim_y]));
+      path[p->pos[dim_y]    ][p->pos[dim_x] + 1].from[dim_y] = p->pos[dim_y];
+      path[p->pos[dim_y]    ][p->pos[dim_x] + 1].from[dim_x] = p->pos[dim_x];
+      heap_decrease_key_no_replace(&h, path[p->pos[dim_y]    ]
+                                           [p->pos[dim_x] + 1].hn);
+    }
+    if ((path[p->pos[dim_y] + 1][p->pos[dim_x]    ].hn) &&
+        (path[p->pos[dim_y] + 1][p->pos[dim_x]    ].cost >
+         ((p->cost + heightpair(p->pos)) *
+          edge_penalty(p->pos[dim_x], p->pos[dim_y] + 1)))) {
+      path[p->pos[dim_y] + 1][p->pos[dim_x]    ].cost =
+        ((p->cost + heightpair(p->pos)) *
+         edge_penalty(p->pos[dim_x], p->pos[dim_y] + 1));
+      path[p->pos[dim_y] + 1][p->pos[dim_x]    ].from[dim_y] = p->pos[dim_y];
+      path[p->pos[dim_y] + 1][p->pos[dim_x]    ].from[dim_x] = p->pos[dim_x];
+      heap_decrease_key_no_replace(&h, path[p->pos[dim_y] + 1]
+                                           [p->pos[dim_x]    ].hn);
+    }
+  }
+}
+
+
 int main(int argc, char *argv[])
 {
   map_t d;
@@ -940,9 +1036,13 @@ int main(int argc, char *argv[])
 
   new_map(&d);
 
+  print_map(&d);
+
+  return 0;
+
   world[y][x] = d; //init map spawn
 
   genworld();
   
-  return 0;
+  //return 0;
 }
