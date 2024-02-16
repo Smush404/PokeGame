@@ -1,3 +1,36 @@
+commit ad07e4d100bcbd3d1e4752a97bbe1b6bfb302ba9
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Wed Feb 14 01:46:57 2024 -0600
+
+    for some reasonig its crashing
+
+commit d2fda120e6fedd6dc014d1360c4c64c62af03260
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Tue Feb 13 23:52:16 2024 -0600
+
+    updated the search still having probelms with the heap init
+
+commit 11e62da65c833a039e4b075814c12ce0d622edfe
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Mon Feb 12 20:53:39 2024 -0600
+
+    Revert "ughhh"
+    
+    This reverts commit cc4c57d8d9449fa221e34d63e398788f7b9d9ef4.
+     dont know why it is crashing
+
+commit cc4c57d8d9449fa221e34d63e398788f7b9d9ef4
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Mon Feb 12 20:21:39 2024 -0600
+
+    ughhh
+
+commit 00b332fa9c9a59a4e1150aac0058c7dd74da2804
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Feb 11 19:22:01 2024 -0600
+
+    start of assignment 2
+
 commit c4ae15d14db2729db23460bd2d296df655c4611b
 Author: Haakon H <hhaus532@iastate.edu>
 Date:   Wed Feb 7 15:53:37 2024 -0600
