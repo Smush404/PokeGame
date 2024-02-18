@@ -1,3 +1,11 @@
+/*
+    TODO
+        - make the heap start from the player 
+        - hope that it all works
+
+        - make the rival pathing
+*/
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -57,15 +65,23 @@ typedef enum __attribute__((__packed__)) terrain_type
   ter_mountain,
   ter_forest,
   ter_water,
-  ter_gate
+  ter_gate,
+  ter_pc
 } terrain_type_t;
 
+typedef struct person
+{
+  char symbol;
+  int y, x;
+  //char type;
+} person_t;
 typedef struct map
 {
   terrain_type_t map[MAP_Y][MAP_X];
   path_t map_pathh[MAP_Y][MAP_X];
   uint8_t height[MAP_Y][MAP_X];
   int8_t n, s, e, w;
+  person_t player;
 } map_t;
 
 typedef struct queue_node
@@ -81,12 +97,7 @@ typedef struct world
   map_t *cur_map;
 } world_t;
 
-typedef struct chariters
-{
-  char symbol;
-  pair_t pos;
-  char type;
-} charitor_t;
+
 
 /*
   - discrete event simulator (1.04)
@@ -925,6 +936,18 @@ static int place_trees(map_t *m)
   return 0;
 }
 
+static void place_PC(map_t *m){
+    person_t pc;
+
+    pc.symbol = '@';
+    //pc.type = 
+    pc.y = 100;
+    pc.x = 100;
+
+    m->player = pc;
+    m->map[pc.y][pc.x] = ter_pc;
+}
+
 // New map expects cur_idx to refer to the index to be generated.  If that
 // map has already been generated then the only thing this does is set
 // cur_map.
@@ -1012,6 +1035,8 @@ static int new_map()
     place_center(world.cur_map);
   }
 
+  place_PC(world.cur_map);
+
   return 0;
 }
 
@@ -1020,17 +1045,12 @@ static void print_map()
   int x, y;
   int default_reached = 0;
 
+  printf("player (y, x): (%d, %d) \n", world.cur_map->player.y, world.cur_map->player.x);
+
   for (y = 0; y < MAP_Y; y++)
   {
     for (x = 0; x < MAP_X; x++)
     {
-
-      if (y == MAP_Y / 2 && x == MAP_X / 2)
-      {
-        putchar('@');
-      }
-      else
-      {
         // printf("y = %d x = %d \n", y, x);
         switch (world.cur_map->map[y][x])
         {
@@ -1041,6 +1061,9 @@ static void print_map()
         case ter_tree:
         case ter_forest:
           putchar('^');
+          break;
+        case ter_pc:
+          putchar(world.cur_map->player.symbol);
           break;
         case ter_path:
         case ter_gate:
@@ -1064,7 +1087,6 @@ static void print_map()
         default:
           default_reached = 1;
           break;
-        }
       }
     }
     putchar('\n');
@@ -1131,12 +1153,6 @@ int cost_hiker(terrain_type_t c)
   return ccost;
 }
 
-  /*
-    TODO
-         - make the heap start from the player 
-         - hope that it all works
-  */
-
 
 static void dijkstra_path_hiker(map_t *m)
 {
@@ -1156,6 +1172,9 @@ static void dijkstra_path_hiker(map_t *m)
         if(world.cur_map->map[y][x] == ter_water || world.cur_map->map[y][x] == ter_gate){
           path[y][x].cost = -1;
         }
+        else if(y == world.cur_map->player.y && x == world.cur_map->player.x){
+            path[y][x].cost = 0;
+        }
         else{
           path[y][x].cost = SHRT_MAX;
         }
@@ -1173,7 +1192,7 @@ static void dijkstra_path_hiker(map_t *m)
   {
     for (x = 0; x < MAP_X; x++)
     {
-      if  (path[y][x].cost <= SHRT_MAX && path[y][x].cost > 0)
+      if  (path[y][x].cost <= SHRT_MAX && path[y][x].cost >= 0)
       { // cost of terrain is not infinity and we are not in water
         path[y][x].hn = heap_insert(&h, &path[y][x]);
       }
@@ -1183,16 +1202,24 @@ static void dijkstra_path_hiker(map_t *m)
       }
     }
   }
-  
-  p = heap_peek_min(&h);
-  p->cost = 0;
+
+  // for (y = 0; y < MAP_Y; y++)
+  // {
+  //   for (x = 0; x < MAP_X; x++)
+  //   {
+  //     if  (){
+
+  //     }
+  //   }
+  // }
 
   while((p = heap_remove_min(&h)))
   {
     p->hn = NULL;
 
     if ((path[p->pos[dim_y] - 1][p->pos[dim_x]].hn) && // N
-        (path[p->pos[dim_y] - 1][p->pos[dim_x]].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost))
+        (path[p->pos[dim_y] - 1][p->pos[dim_x]].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost)  && 
+        (path[p->pos[dim_y] - 1][p->pos[dim_x]].cost > 0))
     {
 
       path[p->pos[dim_y] - 1][p->pos[dim_x]].cost = path[p->pos[dim_y]][p->pos[dim_x]].cost +
@@ -1202,7 +1229,8 @@ static void dijkstra_path_hiker(map_t *m)
     }
 
     if ((path[p->pos[dim_y] - 1][p->pos[dim_x] + 1].hn) && // NE 
-        (path[p->pos[dim_y] - 1][p->pos[dim_x] + 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost))
+        (path[p->pos[dim_y] - 1][p->pos[dim_x] + 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost)  && 
+        (path[p->pos[dim_y] - 1][p->pos[dim_x] + 1].cost > 0))
     {
 
       path[p->pos[dim_y] - 1][p->pos[dim_x] + 1].cost = path[p->pos[dim_y]][p->pos[dim_x]].cost +
@@ -1213,7 +1241,8 @@ static void dijkstra_path_hiker(map_t *m)
 
 
     if ((path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].hn) && // NW
-        (path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost))
+        (path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost)  && 
+        (path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].cost > 0))
     {
 
       path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].cost = path[p->pos[dim_y]][p->pos[dim_x]].cost +
@@ -1222,9 +1251,9 @@ static void dijkstra_path_hiker(map_t *m)
       heap_decrease_key_no_replace(&h, path[p->pos[dim_y] - 1][p->pos[dim_x] - 1].hn);
     }
     if ((path[p->pos[dim_y]][p->pos[dim_x] - 1].hn) && // W
-        (path[p->pos[dim_y]][p->pos[dim_x] - 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost))
+        (path[p->pos[dim_y]][p->pos[dim_x] - 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost)   && 
+        (path[p->pos[dim_y]][p->pos[dim_x] - 1].cost > 0))
     {
-
       path[p->pos[dim_y]][p->pos[dim_x] - 1].cost = p->cost +
                                                     cost_hiker(world.cur_map->map[p->pos[dim_y]][p->pos[dim_x]]);
 
@@ -1232,7 +1261,8 @@ static void dijkstra_path_hiker(map_t *m)
     }
 
     if ((path[p->pos[dim_y]][p->pos[dim_x] + 1].hn) && // E
-        (path[p->pos[dim_y]][p->pos[dim_x] + 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost))
+        (path[p->pos[dim_y]][p->pos[dim_x] + 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost)   && 
+        (path[p->pos[dim_y]][p->pos[dim_x] + 1].cost > 0))
     {
 
       path[p->pos[dim_y]][p->pos[dim_x] + 1].cost = p->cost +
@@ -1242,7 +1272,8 @@ static void dijkstra_path_hiker(map_t *m)
     }
 
     if ((path[p->pos[dim_y] + 1][p->pos[dim_x]].hn) && // S
-        (path[p->pos[dim_y] + 1][p->pos[dim_x]].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost))
+        (path[p->pos[dim_y] + 1][p->pos[dim_x]].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost)   && 
+        (path[p->pos[dim_y] + 1][p->pos[dim_x]].cost > 0))
     {
 
       path[p->pos[dim_y] + 1][p->pos[dim_x]].cost = p->cost +
@@ -1252,7 +1283,8 @@ static void dijkstra_path_hiker(map_t *m)
     }
 
     if ((path[p->pos[dim_y] + 1][p->pos[dim_x]  + 1].hn) && // SW
-        (path[p->pos[dim_y] + 1][p->pos[dim_x] + 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost))
+        (path[p->pos[dim_y] + 1][p->pos[dim_x] + 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost)   && 
+        (path[p->pos[dim_y] + 1][p->pos[dim_x] + 1].cost > 0))
     {
 
       path[p->pos[dim_y] + 1][p->pos[dim_x] + 1].cost = p->cost +
@@ -1262,7 +1294,8 @@ static void dijkstra_path_hiker(map_t *m)
     }
 
     if ((path[p->pos[dim_y] + 1][p->pos[dim_x] + 1].hn) && // SE
-        (path[p->pos[dim_y] + 1][p->pos[dim_x] + 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost))
+        (path[p->pos[dim_y] + 1][p->pos[dim_x] + 1].cost > path[p->pos[dim_y]][p->pos[dim_x]].cost)   && 
+        (path[p->pos[dim_y] + 1][p->pos[dim_x] + 1].cost > 0))
     {
 
       path[p->pos[dim_y] + 1][p->pos[dim_x] + 1].cost = p->cost +
@@ -1274,20 +1307,20 @@ static void dijkstra_path_hiker(map_t *m)
 
 
 
-  for (int i = 0; i < MAP_Y; i++)
-  {
-    for (int j = 0; j < MAP_X; j++)
-    {
-      m->map_pathh[i][j] = path[i][j];
-      if(path[i][j].cost < 0){
-        printf("   ");
-      }
-      else{
-        printf("%02d ", path[i][j].cost % 100);
-      }
-    }
-    printf("\n");
-  }
+  // for (int i = 0; i < MAP_Y; i++)
+  // {
+  //   for (int j = 0; j < MAP_X; j++)
+  //   {
+  //     m->map_pathh[i][j] = path[i][j];
+  //     if(path[i][j].cost < 0){
+  //       printf("   ");
+  //     }
+  //     else{
+  //       printf("%02d ", path[i][j].cost % 100);
+  //     }
+  //   }
+  //   printf("\n");
+  // }
 }
 
 int main(int argc, char *argv[])
