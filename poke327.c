@@ -1,7 +1,6 @@
 /*
     TODO
-        - make the heap start from the player 
-        - hope that it all works
+        - player is placed on good ground
 
         - make the rival pathing
 */
@@ -938,11 +937,20 @@ static int place_trees(map_t *m)
 
 static void place_PC(map_t *m){
     person_t pc;
+    int done = 0;
 
     pc.symbol = '@';
-    //pc.type = 
-    pc.y = 100;
-    pc.x = 100;
+    while(!done){
+      pc.y = rand() %  MAP_Y;
+      pc.x = rand() %  MAP_X;
+
+      if((pc.y != 0 && pc.y != 20) && 
+         (pc.x != 0 && pc.x != 79) &&
+         (m->map[pc.y][pc.x] != ter_water))
+      {
+        done = 1;
+      }
+    }
 
     m->player = pc;
     m->map[pc.y][pc.x] = ter_pc;
@@ -1051,7 +1059,7 @@ static void print_map()
   {
     for (x = 0; x < MAP_X; x++)
     {
-        // printf("y = %d x = %d \n", y, x);
+        //printf("y = %d x = %d \n", y, x);
         switch (world.cur_map->map[y][x])
         {
         case ter_boulder:
@@ -1124,7 +1132,7 @@ void delete_world()
 
 int cost_hiker(terrain_type_t c)
 {
-  int ccost;
+  int ccost = 5;
 
   if (c == ter_boulder || c == ter_mountain)
   {
@@ -1146,9 +1154,10 @@ int cost_hiker(terrain_type_t c)
   {
     ccost = 15;
   }
-  if(c == ter_clearing){{
+  if(c == ter_clearing){
     ccost = 10;
-  }}
+  }
+
 
   return ccost;
 }
@@ -1192,7 +1201,7 @@ static void dijkstra_path_hiker(map_t *m)
   {
     for (x = 0; x < MAP_X; x++)
     {
-      if  (path[y][x].cost <= SHRT_MAX && path[y][x].cost >= 0)
+      if  (path[y][x].cost >= 0)
       { // cost of terrain is not infinity and we are not in water
         path[y][x].hn = heap_insert(&h, &path[y][x]);
       }
@@ -1208,11 +1217,10 @@ static void dijkstra_path_hiker(map_t *m)
   //   for (x = 0; x < MAP_X; x++)
   //   {
   //     if  (){
-
   //     }
   //   }
   // }
-
+  
   while((p = heap_remove_min(&h)))
   {
     p->hn = NULL;
@@ -1305,22 +1313,27 @@ static void dijkstra_path_hiker(map_t *m)
     }
   }
 
+  heap_delete(&h);
 
-
-  // for (int i = 0; i < MAP_Y; i++)
-  // {
-  //   for (int j = 0; j < MAP_X; j++)
-  //   {
-  //     m->map_pathh[i][j] = path[i][j];
-  //     if(path[i][j].cost < 0){
-  //       printf("   ");
-  //     }
-  //     else{
-  //       printf("%02d ", path[i][j].cost % 100);
-  //     }
-  //   }
-  //   printf("\n");
-  // }
+  for (int i = 0; i < MAP_Y; i++)
+  {
+    for (int j = 0; j < MAP_X; j++)
+    {
+      m->map_pathh[i][j] = path[i][j];
+      if(path[i][j].cost < 0){
+        printf("   ");
+      }
+      else{
+        if(i == m->player.y && j == m->player.y){
+          printf(" X ");
+        }
+        else{
+          printf("%02d ", path[i][j].cost % 100);
+        }
+      }
+    }
+    printf("\n");
+  }
 }
 
 int main(int argc, char *argv[])
