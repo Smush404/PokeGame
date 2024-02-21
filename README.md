@@ -11,7 +11,7 @@ An ACII game a lot like Pokemon.
 # This runs the program
 ```
 ## Output
-![working Image](Images/Screenshot 2024-02-20 at 11.59.37 PM.png)
+![Alt text](relative%20Images/Screenshot 2024-02-20 at 11.59.37 PM.png?raw=true "Title")
 ## Bugs
  - crashes randomly because of heap accessing something out of reach.
 
