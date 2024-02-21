@@ -1,3 +1,21 @@
+commit 3cf7bd2553716dbe829b809697cb78a58ebbdd50
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Feb 18 22:26:03 2024 -0600
+
+    hikers pretty much working
+
+commit 7ffe1b03507bfe706f34d1452330fc031fa2180e
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Feb 18 17:28:28 2024 -0600
+
+    adding PC placemt
+
+commit 50071a0b35c545bfe794202dd41616c86ce04100
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Thu Feb 15 19:26:14 2024 -0600
+
+    working movements and cost for hiker
+
 commit ad07e4d100bcbd3d1e4752a97bbe1b6bfb302ba9
 Author: Haakon H <hhaus532@iastate.edu>
 Date:   Wed Feb 14 01:46:57 2024 -0600

@@ -1,16 +1,18 @@
-# PokeGame
-a game like Pokemon but ACII
+# Description
+An ACII game a lot like Pokemon.
 
-# How to run
-    make ground
-        -  will generate the binary file.
+## Usage
 
-    make clean
-        - removes this file
+```zsh
+% make
+# This makes the executable file "poke327"
 
-    finally just run ./genground
+% ./poke327
+# This runs the program
+```
+## Output
+![working Image](Images/Screenshot 2024-02-20 at 11.59.37 PM.png)
+## Bugs
+ - crashes randomly because of heap accessing something out of reach.
 
-# Bugs
-    - some times in the middle of two of the exits connection the path is not commpetely conected. I have no Idea why it does this only some times.
-
-
+![non-working Image](Images/Screenshot 2024-02-20 at 11.48.03 PM.png)
