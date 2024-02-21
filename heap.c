@@ -178,7 +178,7 @@ static void heap_consolidate(heap_t *h)
                        * and much faster than any lg calculation. */
 
   memset(a, 0, sizeof (a));
-
+  
   h->min->prev->next = NULL;
 
   for (x = n = h->min; n; x = n) {
