@@ -15,4 +15,4 @@ An ACII game a lot like Pokemon.
 ## Bugs
  - crashes randomly because of heap accessing something out of reach.
 
-![non-working Image](Images/Screenshot-2024-02-200-at-11.48.03-PM.png)
+![non-working Image](Images/Screenshot-2024-02-20-at-11.48.03-PM.png)
