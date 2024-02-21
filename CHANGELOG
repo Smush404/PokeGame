@@ -1,1 +1,140 @@
-1/24/24 - 8:49 pm = init commit
+commit 3cf7bd2553716dbe829b809697cb78a58ebbdd50
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Feb 18 22:26:03 2024 -0600
+
+    hikers pretty much working
+
+commit 7ffe1b03507bfe706f34d1452330fc031fa2180e
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Feb 18 17:28:28 2024 -0600
+
+    adding PC placemt
+
+commit 50071a0b35c545bfe794202dd41616c86ce04100
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Thu Feb 15 19:26:14 2024 -0600
+
+    working movements and cost for hiker
+
+commit ad07e4d100bcbd3d1e4752a97bbe1b6bfb302ba9
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Wed Feb 14 01:46:57 2024 -0600
+
+    for some reasonig its crashing
+
+commit d2fda120e6fedd6dc014d1360c4c64c62af03260
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Tue Feb 13 23:52:16 2024 -0600
+
+    updated the search still having probelms with the heap init
+
+commit 11e62da65c833a039e4b075814c12ce0d622edfe
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Mon Feb 12 20:53:39 2024 -0600
+
+    Revert "ughhh"
+    
+    This reverts commit cc4c57d8d9449fa221e34d63e398788f7b9d9ef4.
+     dont know why it is crashing
+
+commit cc4c57d8d9449fa221e34d63e398788f7b9d9ef4
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Mon Feb 12 20:21:39 2024 -0600
+
+    ughhh
+
+commit 00b332fa9c9a59a4e1150aac0058c7dd74da2804
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Feb 11 19:22:01 2024 -0600
+
+    start of assignment 2
+
+commit c4ae15d14db2729db23460bd2d296df655c4611b
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Wed Feb 7 15:53:37 2024 -0600
+
+    assignment 2 done
+
+commit 11596dde7acddce2d3d95699399a962c5227270b
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Tue Feb 6 20:54:48 2024 -0600
+
+    flying works
+
+commit 28e0e1c4a8fd3a3455ef0e16165517769c996e24
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Tue Feb 6 19:55:33 2024 -0600
+
+    path conection are working
+
+commit ebb726824bfcd255364acad046d794af67b440ee
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Tue Feb 6 14:50:56 2024 -0600
+
+    updated ground genetation thanks prof
+
+commit 0f1ba6cfcf28f149ed28427634d7a56e1d38e8d8
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Tue Jan 30 18:09:39 2024 -0600
+
+    here
+
+commit 7b3c40dfc17c7807d125bc754e426cc26413ca5a
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Tue Jan 30 17:58:50 2024 -0600
+
+    working map generation
+
+commit d176abcf13bdc038c908f15eae118affc96e4fe6
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Tue Jan 30 15:48:06 2024 -0600
+
+    added market and center to be random and also not over lap (still buggy)
+
+commit 7fa8255852b4bf0a7116c3841d7d2b851598ccd1
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Jan 28 23:19:08 2024 -0600
+
+    market and center are added but are not random
+
+commit 9fa0043e8d60c7955940fdd4bb78a560e1a47f75
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Jan 28 22:33:35 2024 -0600
+
+    fixed generation bug
+
+commit a347b21fe9b2ba2a63cfbe8e3b3d5c855c8a84f7
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Jan 28 22:21:07 2024 -0600
+
+    paths work and exits can not be on the corners
+
+commit 8e750863e5959754d9e83774d9d5c77ebcc9d094
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Jan 28 21:08:11 2024 -0600
+
+    exits are added
+
+commit 1ebdb927a64156e22f13e033e3a61790496218e0
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Sun Jan 28 20:22:48 2024 -0600
+
+    basics of the floor are working
+
+commit 7ed9c25e3fefb1a89bd40eb9478efea753efcf83
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Thu Jan 25 12:42:20 2024 -0600
+
+    change log added
+
+commit d4bc40c00f512120ae4191f590fac67fda0acabc
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Wed Jan 24 20:56:41 2024 -0600
+
+    init commit
+
+commit 57dcefafa25461796b71051350b360e6a1bb6b3f
+Author: Haakon H <hhaus532@iastate.edu>
+Date:   Wed Jan 24 20:55:03 2024 -0600
+
+    Initial commit
