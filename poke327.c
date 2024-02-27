@@ -30,6 +30,18 @@
   _tmp;                          \
 })
 
+typedef struct item
+{
+  char symbol;
+  int next_turn;
+  int seq_num;
+} item_t;
+
+typedef struct PQ
+{
+  item_t items[100];
+  int size;
+} PQ_t;
 typedef struct path
 {
   heap_node_t *hn;
@@ -37,6 +49,7 @@ typedef struct path
   uint8_t from[2];
   int32_t cost;
 } path_t;
+
 
 typedef enum dim
 {
@@ -107,6 +120,10 @@ typedef struct pc
   pair_t pos;
 } pc_t;
 
+typedef struct charitor{
+  pair_t pos;
+  char symbol;
+} cahr_t;
 typedef struct map
 {
   terrain_type_t map[MAP_Y][MAP_X];
@@ -1055,7 +1072,7 @@ static void print_map()
   int x, y;
   int default_reached = 0;
 
-  printf("\n\n\n");
+  printf("\n\n");
 
   for (y = 0; y < MAP_Y; y++)
   {
@@ -1471,6 +1488,88 @@ void print_rival_dist()
   }
 }
 
+void place_hiker(){
+  
+}
+
+int peek(PQ_t *pqr);
+
+// 1 for same - 0 for not
+// int itemcomp(item_t i1, item_t i2)
+// {
+//     if(i1.symbol == i2.symbol &&
+//         i1.next_turn == i2.next_turn &&
+//         i1.seq_num == i2.seq_num){
+//             return 1;
+//     }
+
+//     return 0;
+// }
+
+void PQ_init(PQ_t *pqr)
+{
+  pqr->size = 0;
+}
+
+void enque(PQ_t *pqr, char symbol, int next_turn, int seq_num)
+{
+  int size = pqr->size;
+
+  pqr->items[size].next_turn = next_turn;
+  pqr->items[size].symbol = symbol;
+  pqr->items[size].seq_num = seq_num;
+
+  pqr->size = size++;
+}
+
+void deque(PQ_t *pqr)
+{
+  int ind = peek(pqr);
+
+  for (int i = ind; i < pqr->size; i++)
+  {
+    pqr->items[i] = pqr->items[i + 1];
+  }
+
+  pqr->size--;
+}
+
+int peek(PQ_t *pqr)
+{
+  int highestpir = INT_MAX;
+  item_t tmp = pqr->items[0];
+  int ind = 0;
+
+  for (int i = 0; i < pqr->size; i++)
+  {
+
+    /*
+        next_turn is less
+        if tie the lowest seq_num
+    */
+
+    if (pqr->items[i].next_turn < highestpir)
+    { // strictly less then on next_turn
+
+      tmp = pqr->items[i];
+      highestpir = pqr->items[i].next_turn;
+      ind = i;
+    }
+
+    else if (pqr->items[i].next_turn == highestpir &&
+             pqr->items[i].seq_num < tmp.seq_num)
+    { // if equal check the seq_num
+
+      tmp = pqr->items[i];
+      highestpir = pqr->items[i].next_turn;
+      ind = i;
+    }
+  }
+
+  return ind;
+}
+
+
 int main(int argc, char *argv[])
 {
   struct timeval tv;
@@ -1495,9 +1594,11 @@ int main(int argc, char *argv[])
   init_pc();
   pathfind(world.cur_map);
 
+  place_hiker();
+
   print_map();
-  print_hiker_dist();
-  print_rival_dist();
+  //print_hiker_dist();
+  //print_rival_dist();
 
   delete_world();
 
