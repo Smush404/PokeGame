@@ -67,6 +67,7 @@ typedef int16_t pair_t[num_dims];
 #define TREE_PROB 95
 #define BOULDER_PROB 95
 #define WORLD_SIZE 401
+#define MAX_CHAR 50
 
 #define MOUNTAIN_SYMBOL '%'
 #define BOULDER_SYMBOL '0'
@@ -80,6 +81,14 @@ typedef int16_t pair_t[num_dims];
 #define SHORT_GRASS_SYMBOL '.'
 #define WATER_SYMBOL '~'
 #define ERROR_SYMBOL '&'
+
+#define HIKER_SYMBOL 'h'
+#define RIVAL_SYMBOL 'r'
+#define PACER_SYMBOL 'p'
+#define WONDER_SYMBOL 'w'
+#define SENTRY_SYMBOL 's'
+#define EXPLOER_SYMBOL 'e'
+
 
 #define DIJKSTRA_PATH_MAX (INT_MAX / 2)
 
@@ -101,6 +110,12 @@ typedef enum __attribute__((__packed__)) terrain_type
   ter_forest,
   ter_water,
   ter_gate,
+  ter_rival,
+  ter_hiker,
+  ter_exploer,
+  ter_wonder,
+  ter_sentry,
+  ter_pacer,
   num_terrain_types,
   ter_debug
 } terrain_type_t;
@@ -110,8 +125,11 @@ typedef enum __attribute__((__packed__)) character_type
   char_pc,
   char_hiker,
   char_rival,
-  char_swimmer,
   char_other,
+  char_pacer,
+  char_wonder,
+  char_exploer,
+  char_sentry,
   num_character_types
 } character_type_t;
 
@@ -123,12 +141,14 @@ typedef struct pc
 typedef struct charitor{
   pair_t pos;
   char symbol;
+  terrain_type_t prevous;
 } cahr_t;
 typedef struct map
 {
   terrain_type_t map[MAP_Y][MAP_X];
   uint8_t height[MAP_Y][MAP_X];
   int8_t n, s, e, w;
+  cahr_t cahr[MAX_CHAR];
 } map_t;
 
 typedef struct queue_node
@@ -152,15 +172,16 @@ typedef struct world
 /* Even unallocated, a WORLD_SIZE x WORLD_SIZE array of pointers is a very *
  * large thing to put on the stack.  To avoid that, world is a global.     */
 world_t world;
+int global_count = 0;
 
 /* Just to make the following table fit in 80 columns */
 #define IM DIJKSTRA_PATH_MAX
-int32_t move_cost[num_character_types][num_terrain_types] = {
-    //  boulder,tree,path,mart,center,grass,clearing,mountain,forest,water,gate
-    {IM, IM, 10, 10, 10, 20, 10, IM, IM, IM, 10},
-    {IM, IM, 10, 50, 50, 15, 10, 15, 15, IM, IM},
-    {IM, IM, 10, 50, 50, 20, 10, IM, IM, IM, IM},
-    {IM, IM, IM, IM, IM, IM, IM, IM, IM, 7, IM},
+    int32_t move_cost[num_character_types][num_terrain_types] = {
+        //  boulder,tree,path,mart,center,grass,clearing,mountain,forest,water,gate
+        {IM, IM, 10, 10, 10, 20, 10, IM, IM, IM, 10},
+        {IM, IM, 10, 50, 50, 15, 10, 15, 15, IM, IM},
+        {IM, IM, 10, 50, 50, 20, 10, IM, IM, IM, IM},
+        {IM, IM, IM, IM, IM, IM, IM, IM, IM, 7, IM},
 };
 #undef IM
 
@@ -1120,6 +1141,24 @@ static void print_map()
         case ter_water:
           putchar(WATER_SYMBOL);
           break;
+        case ter_hiker:
+          putchar(HIKER_SYMBOL);
+          break;
+        case ter_rival:
+          putchar(RIVAL_SYMBOL);
+          break;
+        case ter_pacer:
+          putchar(PACER_SYMBOL);
+          break;
+        case ter_wonder:
+          putchar(WONDER_SYMBOL);
+          break;
+        case ter_sentry:
+          putchar(SENTRY_SYMBOL);
+          break;
+        case ter_exploer:
+          putchar(EXPLOER_SYMBOL);
+          break;
         default:
           putchar(ERROR_SYMBOL);
           default_reached = 1;
@@ -1488,23 +1527,239 @@ void print_rival_dist()
   }
 }
 
-void place_hiker(){
-  
+void place_hiker(map_t *m){
+  int x,y;
+
+  y = rand() % (MAP_Y - 2) + 1;
+  x = rand() % (MAP_X - 2) + 1;
+
+  if (m->map[y][x] != ter_water &&
+      m->map[y][x] != ter_gate &&
+      m->map[y][x] != ter_rival &&
+      m->map[y][x] != ter_hiker &&
+      m->map[y][x] != ter_exploer &&
+      m->map[y][x] != ter_wonder &&
+      m->map[y][x] != ter_sentry &&
+      m->map[y][x] != ter_pacer &&
+      y != world.pc.pos[0] &&
+      x != world.pc.pos[1] &&
+      global_count <= MAX_CHAR)
+  {
+    cahr_t h;
+    h.pos[0] = x;
+    h.pos[1] = y;
+    h.prevous = m->map[y][x];
+    h.symbol = 'h';
+
+     m->map[y][x] = ter_hiker;
+    world.cur_map->cahr[global_count] = h;
+    global_count++;
+  }
+}
+
+void place_rival(map_t *m)
+{
+  int x, y;
+
+  y = rand() % (MAP_Y - 2) + 1;
+  x = rand() % (MAP_X - 2) + 1;
+
+  if (m->map[y][x] != ter_water &&
+      m->map[y][x] != ter_gate &&
+      m->map[y][x] != ter_rival &&
+      m->map[y][x] != ter_hiker &&
+      m->map[y][x] != ter_exploer &&
+      m->map[y][x] != ter_wonder &&
+      m->map[y][x] != ter_sentry &&
+      m->map[y][x] != ter_pacer &&
+      m->map[y][x] != ter_mountain &&
+      m->map[y][x] != ter_boulder &&
+      m->map[y][x] != ter_tree &&
+      y != world.pc.pos[0] &&
+      x != world.pc.pos[1] &&
+      global_count <= MAX_CHAR)
+  {
+    cahr_t h;
+    h.pos[0] = x;
+    h.pos[1] = y;
+    h.prevous = m->map[y][x];
+    h.symbol = 'r';
+
+    m->map[y][x] = ter_rival;
+    world.cur_map->cahr[global_count] = h;
+    global_count++;
+  }
+}
+
+void place_wonder(map_t *m)
+{
+  int x, y;
+
+  y = rand() % (MAP_Y - 2) + 1;
+  x = rand() % (MAP_X - 2) + 1;
+
+  if (m->map[y][x] != ter_water &&
+      m->map[y][x] != ter_gate &&
+      m->map[y][x] != ter_rival &&
+      m->map[y][x] != ter_rival &&
+      m->map[y][x] != ter_hiker &&
+      m->map[y][x] != ter_exploer &&
+      m->map[y][x] != ter_wonder &&
+      m->map[y][x] != ter_sentry &&
+      m->map[y][x] != ter_pacer &&
+      m->map[y][x] != ter_mountain &&
+      m->map[y][x] != ter_boulder &&
+      m->map[y][x] != ter_tree &&
+      y != world.pc.pos[0] &&
+      x != world.pc.pos[1] &&
+      global_count <= MAX_CHAR)
+  {
+    cahr_t h;
+    h.pos[0] = x;
+    h.pos[1] = y;
+    h.prevous = m->map[y][x];
+    h.symbol = 'w';
+
+    m->map[y][x] = ter_wonder;
+    world.cur_map->cahr[global_count] = h;
+    global_count++;
+  }
+}
+
+void place_sentry(map_t *m)
+{
+  int x, y;
+
+  y = rand() % (MAP_Y - 2) + 1;
+  x = rand() % (MAP_X - 2) + 1;
+
+  if (m->map[y][x] != ter_water &&
+      m->map[y][x] != ter_gate &&
+      m->map[y][x] != ter_rival &&
+      m->map[y][x] != ter_rival &&
+      m->map[y][x] != ter_hiker &&
+      m->map[y][x] != ter_exploer &&
+      m->map[y][x] != ter_wonder &&
+      m->map[y][x] != ter_sentry &&
+      m->map[y][x] != ter_pacer &&
+      m->map[y][x] != ter_mountain &&
+      m->map[y][x] != ter_boulder &&
+      m->map[y][x] != ter_tree &&
+
+      y != world.pc.pos[0] &&
+      x != world.pc.pos[1] &&
+      global_count <= MAX_CHAR)
+  {
+    cahr_t h;
+    h.pos[0] = x;
+    h.pos[1] = y;
+    h.prevous = m->map[y][x];
+    h.symbol = 's';
+
+    m->map[y][x] = ter_sentry;
+    world.cur_map->cahr[global_count] = h;
+
+    global_count++;
+  }
+}
+
+void place_exploer(map_t *m)
+{
+  int x, y;
+
+  y = rand() % (MAP_Y - 2) + 1;
+  x = rand() % (MAP_X - 2) + 1;
+
+  if (m->map[y][x] != ter_water &&
+      m->map[y][x] != ter_gate &&
+      m->map[y][x] != ter_rival &&
+      m->map[y][x] != ter_rival &&
+      m->map[y][x] != ter_hiker &&
+      m->map[y][x] != ter_exploer &&
+      m->map[y][x] != ter_wonder &&
+      m->map[y][x] != ter_sentry &&
+      m->map[y][x] != ter_pacer &&
+      m->map[y][x] != ter_mountain &&
+      m->map[y][x] != ter_forest &&
+      m->map[y][x] != ter_boulder &&
+      m->map[y][x] != ter_tree &&
+      y != world.pc.pos[0] &&
+      x != world.pc.pos[1] &&
+      global_count <= MAX_CHAR)
+  {
+    cahr_t h;
+    h.pos[0] = x;
+    h.pos[1] = y;
+    h.prevous = m->map[y][x];
+    h.symbol = 'e';
+
+    m->map[y][x] = ter_exploer;
+    world.cur_map->cahr[global_count] = h;
+    global_count++;
+  }
+}
+
+void place_pacer(map_t *m)
+{
+  int x, y;
+
+  y = rand() % (MAP_Y - 2) + 1;
+  x = rand() % (MAP_X - 2) + 1;
+
+  if (m->map[y][x] != ter_water &&
+      m->map[y][x] != ter_gate &&
+      m->map[y][x] != ter_rival &&
+      m->map[y][x] != ter_rival &&
+      m->map[y][x] != ter_hiker &&
+      m->map[y][x] != ter_exploer &&
+      m->map[y][x] != ter_wonder &&
+      m->map[y][x] != ter_sentry &&
+      m->map[y][x] != ter_pacer &&
+      m->map[y][x] != ter_mountain &&
+      m->map[y][x] != ter_boulder &&
+      m->map[y][x] != ter_tree &&
+      y != world.pc.pos[0] &&
+      x != world.pc.pos[1] &&
+      global_count <= MAX_CHAR)
+  {
+    cahr_t h;
+    h.pos[0] = x;
+    h.pos[1] = y;
+    h.prevous = m->map[y][x];
+    h.symbol = 'p';
+
+    m->map[y][x] = ter_pacer;
+    world.cur_map->cahr[global_count] = h;
+    global_count++;
+  }
 }
 
 int peek(PQ_t *pqr);
 
-// 1 for same - 0 for not
-// int itemcomp(item_t i1, item_t i2)
-// {
-//     if(i1.symbol == i2.symbol &&
-//         i1.next_turn == i2.next_turn &&
-//         i1.seq_num == i2.seq_num){
-//             return 1;
-//     }
+// 0 for same - 1 for not - if 2 for i2 seq_num less - if 3 for i1 seq_num less
+int itemcomp(item_t i1, item_t i2)
+{
+  if (i1.symbol == i2.symbol &&
+      i1.next_turn == i2.next_turn &&
+      i1.seq_num == i2.seq_num)
+  { // equal
+    return 1;
+  }
 
-//     return 0;
-// }
+  else if (i1.next_turn == i2.next_turn &&
+           i1.seq_num < i2.seq_num)
+  { // i2 is less
+    return 2;
+  }
+
+  else if (i1.next_turn == i2.next_turn &&
+           i1.seq_num > i2.seq_num)
+  { // i1 is less
+    return 3;
+  }
+
+  return 1; // not the same atall
+}
 
 void PQ_init(PQ_t *pqr)
 {
@@ -1519,7 +1774,7 @@ void enque(PQ_t *pqr, char symbol, int next_turn, int seq_num)
   pqr->items[size].symbol = symbol;
   pqr->items[size].seq_num = seq_num;
 
-  pqr->size = size++;
+  pqr->size++;
 }
 
 void deque(PQ_t *pqr)
@@ -1539,6 +1794,8 @@ int peek(PQ_t *pqr)
   int highestpir = INT_MAX;
   item_t tmp = pqr->items[0];
   int ind = 0;
+
+  printf("size = %d\n", pqr->size);
 
   for (int i = 0; i < pqr->size; i++)
   {
@@ -1569,6 +1826,61 @@ int peek(PQ_t *pqr)
   return ind;
 }
 
+void place_npc(int num_npc){
+  for(int i = 0; i < num_npc / 4; i++){
+    place_rival(world.cur_map);
+    place_hiker(world.cur_map);
+  }
+  
+  while(global_count < num_npc){
+    place_rival(world.cur_map);
+    place_hiker(world.cur_map);
+    place_exploer(world.cur_map);
+    place_pacer(world.cur_map);
+    place_sentry(world.cur_map);
+    place_wonder(world.cur_map);
+  }
+}
+
+void init_everyone(){
+  PQ_t pqm;
+  PQ_init(&pqm);
+
+  //player is not include rn
+  for(int i = 0; i < global_count; i++){
+    char sym = world.cur_map->cahr[i].symbol;
+    int nextmove = 0;
+
+    if(sym == 'h'){
+      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
+    }
+    else if(sym == 'r'){
+      nextmove = world.rival_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
+    }
+    else if(sym == 'w'){
+      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
+    }
+    else if (sym == 'e')
+    {
+      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
+    }
+    else if (sym == 'p')
+    {
+      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
+    }
+    if(sym != 's'){
+      enque(&pqm, sym, nextmove, i);
+    }
+  }
+
+  for(int i = 0; i < pqm.size; i++){
+    char symbol = pqm.items[i].symbol;
+    int next = pqm.items[i].next_turn;
+    int seq = pqm.items[i].seq_num;
+
+    printf("\n%c %d %d", symbol, next, seq);
+  }
+}
 
 int main(int argc, char *argv[])
 {
@@ -1576,29 +1888,51 @@ int main(int argc, char *argv[])
   uint32_t seed;
   char c;
   int x, y;
+  int numtrainer = 10;
+  int wasseed = 0;
 
-  if (argc == 2)
-  {
-    seed = atoi(argv[1]);
+  if(argc > 0){
+    for(int i = 1; i < argc; i++){
+      printf("i = %d, agrv = %s\n", i, argv[i]);
+
+      if (strcmp(argv[i], "--seed") == 0 && i + 1 < argc)
+      {
+        seed = atoi(argv[i + 1]);
+        wasseed = 1;
+      }
+
+      if(strcmp(argv[i], "--numtrainers") == 0 && i + 1 < argc){
+        if (atoi(argv[i + 1]) > 0){
+          numtrainer = atoi(argv[i + 1]);
+        }
+      }
+    }
   }
-  else
-  {
+
+  if (!wasseed){
     gettimeofday(&tv, NULL);
     seed = (tv.tv_usec ^ (tv.tv_sec << 20)) & 0xffffffff;
   }
 
   printf("Using seed: %u\n", seed);
+  printf("Using count of trainers: %d\n", numtrainer);
   srand(seed);
 
   init_world();
   init_pc();
   pathfind(world.cur_map);
 
-  place_hiker();
-
+  place_npc(numtrainer);
   print_map();
-  //print_hiker_dist();
-  //print_rival_dist();
+
+  printf("%d \n", global_count);
+  for(int i = 0; i < global_count; i++){
+    printf("%c ", world.cur_map->cahr[i].symbol);
+  }
+
+  init_everyone();
+  print_hiker_dist();
+  print_rival_dist();
 
   delete_world();
 
