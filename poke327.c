@@ -6,24 +6,18 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "heap.h"
 
-/*
-  - discrete event simulator (1.04)
-    - method to keep track of whos turn it is
-    - event que with whos turn  it is
-                                - their symbols
-                                - their next turn (init as 0 & cost of next turn) and
-                                - a seq number (to break ties)
-*/
-/*
-  - WHERE DATA IS
-  - the ditance maps belong in the map not the maps them selfs
-  - PC is in the world
-  - make chariter struct
-  - make  a struct to keep track of all the cahricters
-*/
+  /*
+    TODO:
+    - fix weird ditance problem with npcs fights.
+    - player moves to npc start fight 
+      - make the fight a new function
+
+    - fix the display of close by NPCs
+  */
 
 #define malloc(size) ({          \
   void *_tmp;                    \
@@ -65,6 +59,7 @@ typedef struct charitor
   pair_t pos;
   char symbol;
   terrain_type_t prevous;
+  int dead;
 } cahr_t;
 
 typedef struct item
@@ -97,6 +92,16 @@ typedef struct path
 #define BOULDER_PROB 95
 #define WORLD_SIZE 401
 #define MAX_CHAR 50
+
+//colors :)
+#define RED   "\x1B[31m"
+#define GRN   "\x1B[32m"
+#define YEL   "\x1B[33m"
+#define BLU   "\x1B[34m"
+#define MAG   "\x1B[35m"
+#define CYN   "\x1B[36m"
+#define WHT   "\x1B[37m"
+#define RESET "\x1B[0m"
 
 #define MOUNTAIN_SYMBOL '%'
 #define BOULDER_SYMBOL '0'
@@ -1096,7 +1101,7 @@ static void print_map()
   int x, y;
   int default_reached = 0;
 
-  printf("\n\n");
+  printf("\n");
 
   for (y = 0; y < MAP_Y; y++)
   {
@@ -1105,7 +1110,7 @@ static void print_map()
       if (world.pc.pos[dim_y] == y &&
           world.pc.pos[dim_x] == x)
       {
-        putchar('@');
+        printf(GRN "@" RESET);
       }
       else
       {
@@ -1124,16 +1129,16 @@ static void print_map()
           putchar(FOREST_SYMBOL);
           break;
         case ter_path:
-          putchar(PATH_SYMBOL);
+          printf(YEL "#" RESET);
           break;
         case ter_gate:
-          putchar(GATE_SYMBOL);
+          printf(YEL "#" RESET);
           break;
         case ter_mart:
-          putchar(POKEMART_SYMBOL);
+          printf(CYN "M" RESET);
           break;
         case ter_center:
-          putchar(POKEMON_CENTER_SYMBOL);
+          printf(CYN "C" RESET);
           break;
         case ter_grass:
           putchar(TALL_GRASS_SYMBOL);
@@ -1142,25 +1147,25 @@ static void print_map()
           putchar(SHORT_GRASS_SYMBOL);
           break;
         case ter_water:
-          putchar(WATER_SYMBOL);
+          printf(BLU "~" RESET);
           break;
         case ter_hiker:
-          putchar(HIKER_SYMBOL);
+          printf(RED "h" RESET);
           break;
         case ter_rival:
-          putchar(RIVAL_SYMBOL);
+          printf(RED "r" RESET);
           break;
         case ter_pacer:
-          putchar(PACER_SYMBOL);
+          printf(RED "p" RESET);
           break;
         case ter_wonder:
-          putchar(WONDER_SYMBOL);
+          printf(RED "w" RESET);;
           break;
         case ter_sentry:
-          putchar(SENTRY_SYMBOL);
+          printf(RED "s" RESET);
           break;
         case ter_exploer:
-          putchar(EXPLOER_SYMBOL);
+          printf(RED "e" RESET);
           break;
         default:
           putchar(ERROR_SYMBOL);
@@ -1587,6 +1592,7 @@ void place_rival(map_t *m)
     h.pos[1] = y;
     h.prevous = m->map[y][x];
     h.symbol = 'r';
+    h.dead = 0;
 
     m->map[y][x] = ter_rival;
     world.cur_map->cahr[global_count] = h;
@@ -1622,7 +1628,7 @@ void place_wonder(map_t *m)
     h.pos[1] = y;
     h.prevous = m->map[y][x];
     h.symbol = 'w';
-
+h.dead = 0;
     m->map[y][x] = ter_wonder;
     world.cur_map->cahr[global_count] = h;
     global_count++;
@@ -1658,7 +1664,7 @@ void place_sentry(map_t *m)
     h.pos[1] = y;
     h.prevous = m->map[y][x];
     h.symbol = 's';
-
+h.dead = 0;
     m->map[y][x] = ter_sentry;
     world.cur_map->cahr[global_count] = h;
 
@@ -1695,7 +1701,7 @@ void place_exploer(map_t *m)
     h.pos[1] = y;
     h.prevous = m->map[y][x];
     h.symbol = 'e';
-
+h.dead = 0;
     m->map[y][x] = ter_exploer;
     world.cur_map->cahr[global_count] = h;
     global_count++;
@@ -1730,7 +1736,7 @@ void place_pacer(map_t *m)
     h.pos[1] = y;
     h.prevous = m->map[y][x];
     h.symbol = 'p';
-
+h.dead = 0;
     m->map[y][x] = ter_pacer;
     world.cur_map->cahr[global_count] = h;
     global_count++;
@@ -1846,18 +1852,24 @@ int no_npc(terrain_type_t ter_type){
   switch (ter_type)
   {
   case ter_pacer:
+    printf("\nThere is a pacer in the way\n");
     return 0;
     break;
   case ter_exploer:
+    printf("\nThere is a expoler in the way\n");
     return 0;
     break;
   case ter_wonder:
+    printf("\nThere is a wander in the way\n");
     return 0;
     break;
   case ter_hiker:
+    printf("\nThere is a hiker in the way\n");
     return 0;
     break;
   case ter_rival:
+
+    printf("\nThere is a rival in the way\n");
     return 0;
     break;
   default:
@@ -1867,9 +1879,26 @@ int no_npc(terrain_type_t ter_type){
   return 1;
 }
 
-int checkplayer(int y, int x){
-  
-  if(y != world.pc.pos[dim_y] && x != world.pc.pos[dim_x]){return 1;}
+int checkplayer(int y, int x, cahr_t *person){
+  char answer;
+  print_map();
+
+  if(y != world.pc.pos[dim_y] && x != world.pc.pos[dim_x]){return 1;} //if player and npc can fight they will
+
+  person->dead = 1;
+  printf("dead: %c, %d\n", person->symbol, person->pos[dim_y]);
+
+  while(1){
+  //for(int i = 0; i <  MAP_Y - 2; i++){
+    printf("This is a battle!!!!! q to exit\n");
+  //}
+
+  scanf(" %c", &answer);
+
+    if(answer == 'q'){
+      break;
+    }
+  }
   return 0;
 }
 
@@ -1888,7 +1917,7 @@ int move_hiker(item_t *person){
        && (cur_person.c.pos[dim_y] + 1) != 0 && (cur_person.c.pos[dim_x]) != 0
        && (cur_person.c.pos[dim_y] + 1) != MAP_Y && (cur_person.c.pos[dim_x]) != MAP_X 
        && no_npc(world.cur_map->map[cur_person.c.pos[dim_y] + 1][cur_person.c.pos[dim_x]])
-       && checkplayer(cur_person.c.pos[dim_y] + 1, cur_person.c.pos[dim_x]))
+       && checkplayer(cur_person.c.pos[dim_y] + 1, cur_person.c.pos[dim_x], &cur_person.c))
     { // S
       cheapest[dim_y] = cur_person.c.pos[dim_y] + 1;
       cheapest[dim_x] = cur_person.c.pos[dim_x];
@@ -1900,7 +1929,7 @@ int move_hiker(item_t *person){
          && (cur_person.c.pos[dim_y] - 1) != 0 && (cur_person.c.pos[dim_x]) != 0
        && (cur_person.c.pos[dim_y] - 1) != MAP_Y && (cur_person.c.pos[dim_x]) != MAP_X
       && no_npc(world.cur_map->map[cur_person.c.pos[dim_y] - 1][cur_person.c.pos[dim_x]])
-       && checkplayer(cur_person.c.pos[dim_y] - 1, cur_person.c.pos[dim_x]))
+       && checkplayer(cur_person.c.pos[dim_y] - 1, cur_person.c.pos[dim_x], &cur_person.c))
   { // N
     cheapest[dim_y] = cur_person.c.pos[dim_y] - 1;
     cheapest[dim_x] = cur_person.c.pos[dim_x];
@@ -1912,7 +1941,7 @@ int move_hiker(item_t *person){
         && (cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] + 1) != 0
        && (cur_person.c.pos[dim_y]) != MAP_Y && (cur_person.c.pos[dim_x] + 1) != MAP_X
               && no_npc(world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] + 1])
-       && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] + 1))
+       && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] + 1, &cur_person.c))
   { // E
     cheapest[dim_y] = cur_person.c.pos[dim_y];
     cheapest[dim_x] = cur_person.c.pos[dim_x] + 1;
@@ -1924,7 +1953,7 @@ int move_hiker(item_t *person){
       && (cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] - 1) != 0
        && (cur_person.c.pos[dim_y]) != MAP_Y && (cur_person.c.pos[dim_x] - 1) != MAP_X
       && no_npc(world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] - 1])
-       && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] - 1))
+       && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] - 1, &cur_person.c))
   { // W
     cheapest[dim_y] = cur_person.c.pos[dim_y];
     cheapest[dim_x] = cur_person.c.pos[dim_x] - 1;
@@ -1938,6 +1967,7 @@ int move_hiker(item_t *person){
   h.pos[dim_x] = cheapest[dim_x];
   h.prevous = world.cur_map->map[cheapest[dim_y]][cheapest[dim_x]];
   h.symbol = cur_person.symbol;
+  h.dead = cur_person.c.dead;
 
   t.c = h;
   t.next_turn = cur_person.next_turn;
@@ -1966,7 +1996,7 @@ int move_rival(item_t *person){
        && (cur_person.c.pos[dim_y] + 1) != 0 && (cur_person.c.pos[dim_x]) != 0
        && (cur_person.c.pos[dim_y] + 1) != MAP_Y && (cur_person.c.pos[dim_x]) != MAP_X 
        && no_npc(world.cur_map->map[cur_person.c.pos[dim_y] + 1][cur_person.c.pos[dim_x]])
-       && checkplayer(cur_person.c.pos[dim_y] + 1, cur_person.c.pos[dim_x]))
+       && checkplayer(cur_person.c.pos[dim_y] + 1, cur_person.c.pos[dim_x], &cur_person.c))
     { // S
       cheapest[dim_y] = cur_person.c.pos[dim_y] + 1;
       cheapest[dim_x] = cur_person.c.pos[dim_x];
@@ -1978,7 +2008,7 @@ int move_rival(item_t *person){
          && (cur_person.c.pos[dim_y] - 1) != 0 && (cur_person.c.pos[dim_x]) != 0
        && (cur_person.c.pos[dim_y] - 1) != MAP_Y && (cur_person.c.pos[dim_x]) != MAP_X
       && no_npc(world.cur_map->map[cur_person.c.pos[dim_y] - 1][cur_person.c.pos[dim_x]])
-       && checkplayer(cur_person.c.pos[dim_y] - 1, cur_person.c.pos[dim_x]))
+       && checkplayer(cur_person.c.pos[dim_y] - 1, cur_person.c.pos[dim_x], &cur_person.c))
   { // N
     cheapest[dim_y] = cur_person.c.pos[dim_y] - 1;
     cheapest[dim_x] = cur_person.c.pos[dim_x];
@@ -1990,7 +2020,7 @@ int move_rival(item_t *person){
         && (cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] + 1) != 0
        && (cur_person.c.pos[dim_y]) != MAP_Y && (cur_person.c.pos[dim_x] + 1) != MAP_X
               && no_npc(world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] + 1])
-       && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] + 1))
+       && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] + 1, &cur_person.c))
   { // E
     cheapest[dim_y] = cur_person.c.pos[dim_y];
     cheapest[dim_x] = cur_person.c.pos[dim_x] + 1;
@@ -2002,7 +2032,7 @@ int move_rival(item_t *person){
       && (cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] - 1) != 0
        && (cur_person.c.pos[dim_y]) != MAP_Y && (cur_person.c.pos[dim_x] - 1) != MAP_X
       && no_npc(world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] - 1])
-       && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] - 1))
+       && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] - 1, &cur_person.c))
   { // W
     cheapest[dim_y] = cur_person.c.pos[dim_y];
     cheapest[dim_x] = cur_person.c.pos[dim_x] - 1;
@@ -2017,6 +2047,7 @@ int move_rival(item_t *person){
   h.pos[dim_x] = cheapest[dim_x];
   h.prevous = world.cur_map->map[cheapest[dim_y]][cheapest[dim_x]];
   h.symbol = cur_person.symbol;
+  h.dead = cur_person.c.dead;
 
   t.c = h;
   t.next_turn = cur_person.next_turn;
@@ -2050,7 +2081,7 @@ int move_wonder(item_t *person){
     if ((cur_person.c.pos[dim_y] + 1) != 0 && (cur_person.c.pos[dim_x]) != 0
        && (cur_person.c.pos[dim_y] + 1) != MAP_Y && (cur_person.c.pos[dim_x]) != MAP_X 
        && no_npc(world.cur_map->map[cur_person.c.pos[dim_y] + 1][cur_person.c.pos[dim_x]])
-       && checkplayer(cur_person.c.pos[dim_y] + 1, cur_person.c.pos[dim_x])
+       && checkplayer(cur_person.c.pos[dim_y] + 1, cur_person.c.pos[dim_x], &cur_person.c)
        && cur_ter == world.cur_map->map[cur_person.c.pos[dim_y] + 1][cur_person.c.pos[dim_x]]
       && r == 1)
     { // S
@@ -2060,10 +2091,10 @@ int move_wonder(item_t *person){
       
   }
 
-    if((cur_person.c.pos[dim_y] - 1) != 0 && (cur_person.c.pos[dim_x]) != 0
+    else if((cur_person.c.pos[dim_y] - 1) != 0 && (cur_person.c.pos[dim_x]) != 0
         && (cur_person.c.pos[dim_y] - 1) != MAP_Y && (cur_person.c.pos[dim_x]) != MAP_X
         && no_npc(world.cur_map->map[cur_person.c.pos[dim_y] - 1][cur_person.c.pos[dim_x]])
-        && checkplayer(cur_person.c.pos[dim_y] - 1, cur_person.c.pos[dim_x])
+        && checkplayer(cur_person.c.pos[dim_y] - 1, cur_person.c.pos[dim_x], &cur_person.c)
         && cur_ter == world.cur_map->map[cur_person.c.pos[dim_y] - 1][cur_person.c.pos[dim_x]]
         && r == 2)
     { // N
@@ -2073,11 +2104,11 @@ int move_wonder(item_t *person){
       
     }
 
-          if(cur_ter == world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] + 1]
+    else if(cur_ter == world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] + 1]
           && (cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] + 1) != 0
         && (cur_person.c.pos[dim_y]) != MAP_Y && (cur_person.c.pos[dim_x] + 1) != MAP_X
                 && no_npc(world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] + 1])
-        && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] + 1)
+        && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] + 1, &cur_person.c)
         && r == 3)
     { // E
       cheapest[dim_y] = cur_person.c.pos[dim_y];
@@ -2086,11 +2117,11 @@ int move_wonder(item_t *person){
       
     }
 
-    if(cur_ter == world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] - 1]
+    else if(cur_ter == world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] - 1]
     && (cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] - 1) != 0
       && (cur_person.c.pos[dim_y]) != MAP_Y && (cur_person.c.pos[dim_x] - 1) != MAP_X
     && no_npc(world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] - 1])
-      && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] - 1)
+      && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] - 1, &cur_person.c)
       && r == 4)
     { // W
       cheapest[dim_y] = cur_person.c.pos[dim_y];
@@ -2099,7 +2130,7 @@ int move_wonder(item_t *person){
       
     }
 
-    if(r == 5){
+    else if(r == 5){
       done = 1;
     }
 
@@ -2114,7 +2145,7 @@ int move_wonder(item_t *person){
   h.pos[dim_x] = cheapest[dim_x];
   h.prevous = cur_person.c.prevous;
   h.symbol = cur_person.symbol;
-
+  h.dead = cur_person.c.dead;
   t.c = h;
   t.next_turn = cur_person.next_turn;
   t.seq_num = cur_person.seq_num;
@@ -2146,7 +2177,7 @@ int move_exploer(item_t *person){
     if ((cur_person.c.pos[dim_y] + 1) != 0 && (cur_person.c.pos[dim_x]) != 0
        && (cur_person.c.pos[dim_y] + 1) != MAP_Y && (cur_person.c.pos[dim_x]) != MAP_X 
        && no_npc(world.cur_map->map[cur_person.c.pos[dim_y] + 1][cur_person.c.pos[dim_x]])
-       && checkplayer(cur_person.c.pos[dim_y] + 1, cur_person.c.pos[dim_x])
+       && checkplayer(cur_person.c.pos[dim_y] + 1, cur_person.c.pos[dim_x], &cur_person.c)
       && r == 1)
     { // S
       cheapest[dim_y] = cur_person.c.pos[dim_y] + 1;
@@ -2155,10 +2186,10 @@ int move_exploer(item_t *person){
       
   }
 
-    if((cur_person.c.pos[dim_y] - 1) != 0 && (cur_person.c.pos[dim_x]) != 0
+    else if((cur_person.c.pos[dim_y] - 1) != 0 && (cur_person.c.pos[dim_x]) != 0
         && (cur_person.c.pos[dim_y] - 1) != MAP_Y && (cur_person.c.pos[dim_x]) != MAP_X
         && no_npc(world.cur_map->map[cur_person.c.pos[dim_y] - 1][cur_person.c.pos[dim_x]])
-        && checkplayer(cur_person.c.pos[dim_y] - 1, cur_person.c.pos[dim_x])
+        && checkplayer(cur_person.c.pos[dim_y] - 1, cur_person.c.pos[dim_x], &cur_person.c)
         && r == 2)
     { // N
       cheapest[dim_y] = cur_person.c.pos[dim_y] - 1;
@@ -2168,10 +2199,10 @@ int move_exploer(item_t *person){
     }
 
 
-          if((cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] + 1) != 0
+          else if((cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] + 1) != 0
         && (cur_person.c.pos[dim_y]) != MAP_Y && (cur_person.c.pos[dim_x] + 1) != MAP_X
                 && no_npc(world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] + 1])
-        && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] + 1)
+        && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] + 1, &cur_person.c)
         && r == 3)
     { // E
       cheapest[dim_y] = cur_person.c.pos[dim_y];
@@ -2181,10 +2212,10 @@ int move_exploer(item_t *person){
     }
 
 
-    if((cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] - 1) != 0
+    else if((cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] - 1) != 0
       && (cur_person.c.pos[dim_y]) != MAP_Y && (cur_person.c.pos[dim_x] - 1) != MAP_X
     && no_npc(world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] - 1])
-      && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] - 1)
+      && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] - 1, &cur_person.c)
       && r == 4)
     { // W
       cheapest[dim_y] = cur_person.c.pos[dim_y];
@@ -2193,7 +2224,7 @@ int move_exploer(item_t *person){
       
     }
 
-    if(r == 5){
+    else if(r == 5){
       done = 1;
     }
 
@@ -2208,7 +2239,7 @@ int move_exploer(item_t *person){
   h.pos[dim_x] = cheapest[dim_x];
   h.prevous = cur_person.c.prevous;
   h.symbol = cur_person.symbol;
-
+h.dead = cur_person.c.dead;
   t.c = h;
   t.next_turn = cur_person.next_turn;
   t.seq_num = cur_person.seq_num;
@@ -2255,7 +2286,6 @@ int move_exploer(item_t *person){
   return world.hiker_dist[cheapest[dim_y]][cheapest[dim_x]] + cur_person.next_turn;;
 }
 
-
 int move_pacer(item_t *person){
   pair_t cheapest;
   item_t cur_person = *person;
@@ -2276,7 +2306,7 @@ int move_pacer(item_t *person){
       && (cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] + 1) != 0
     && (cur_person.c.pos[dim_y]) != MAP_Y && (cur_person.c.pos[dim_x] + 1) != MAP_X
             && no_npc(world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] + 1])
-    && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] + 1)
+    && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] + 1, &cur_person.c)
     && r == 1)
     { // E
       cheapest[dim_y] = cur_person.c.pos[dim_y];
@@ -2285,11 +2315,11 @@ int move_pacer(item_t *person){
       
     }
 
-    if(cur_ter == world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] - 1]
+    else if(cur_ter == world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] - 1]
     && (cur_person.c.pos[dim_y]) != 0 && (cur_person.c.pos[dim_x] - 1) != 0
       && (cur_person.c.pos[dim_y]) != MAP_Y && (cur_person.c.pos[dim_x] - 1) != MAP_X
     && no_npc(world.cur_map->map[cur_person.c.pos[dim_y]][cur_person.c.pos[dim_x] - 1])
-      && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] - 1)
+      && checkplayer(cur_person.c.pos[dim_y], cur_person.c.pos[dim_x] - 1, &cur_person.c)
       && r == 2)
     { // W
       cheapest[dim_y] = cur_person.c.pos[dim_y];
@@ -2298,7 +2328,7 @@ int move_pacer(item_t *person){
       
     }
 
-    if(r == 3){
+    else if(r == 3){
       done = 1;
     }
 
@@ -2313,7 +2343,7 @@ int move_pacer(item_t *person){
   h.pos[dim_x] = cheapest[dim_x];
   h.prevous = cur_person.c.prevous;
   h.symbol = cur_person.symbol;
-
+h.dead = cur_person.c.dead;
   t.c = h;
   t.next_turn = cur_person.next_turn;
   t.seq_num = cur_person.seq_num;
@@ -2327,52 +2357,219 @@ int move_pacer(item_t *person){
   return world.hiker_dist[cheapest[dim_y]][cheapest[dim_x]] + cur_person.next_turn;
 }
 
-void init_everyone()
-{
-  PQ_t pqm;
-  PQ_init(&pqm);
+int check_ter(terrain_type_t t){
 
-  //player is not include rn
-  for(int i = 0; i < global_count; i++){
-    char sym = world.cur_map->cahr[i].symbol;
-    int nextmove = 0;
+  switch (t)
+  {
+  case ter_water:
+    printf("you can not swim\n");
+    return 0;
+    break;
 
-    if(sym == 'h'){
-      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
-    }
-    else if(sym == 'r'){
-      nextmove = world.rival_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
-    }
-    else if(sym == 'w'){
-      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
-    }
-    else if (sym == 'e')
-    {
-      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
-    }
-    else if (sym == 'p')
-    {
-      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
-    }
-    if(sym != 's'){
-      enque(&pqm, sym, nextmove, i, world.cur_map->cahr[i]);
-    }
+  case ter_gate:
+    printf("you have not unlocked this area yet\n");
+    return 0;
+    break;
+
+  case ter_tree:
+    printf("maybe if you punch it, it will give you wood!\n");
+    return 0;
+    break;    
+   
+  case ter_boulder:
+    printf("please do not climb on the rocks...\n");
+    return 0;
+    break;
+
+  default:
+    break;
   }
+  
+  
+  return 1;
+}
 
-  // for(int i = 0; i < pqm.size; i++){
-  //   char symbol = pqm.items[i].symbol;
-  //   int next = pqm.items[i].next_turn;
-  //   int seq = pqm.items[i].seq_num;
+int move_player(item_t *person, PQ_t *pqm){
 
-  //   printf("\n%c %d %d", symbol, next, seq);
-  // }
-
-  int index, futuremove;
-  item_t cur_person;
+  char answer;
 
   while(1){
-    index = peek(&pqm);
-    cur_person = pqm.items[index];
+    print_map();
+    scanf(" %c", &answer);
+    if(isalpha(answer)){
+      answer = tolower(answer);
+    }
+
+    //quiting
+    if(answer == 'q'){ //quit
+      return -1;
+    }
+
+  //          world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] != ter_water &&
+
+
+    // ====== movement ======
+    else if((answer == 'y' || answer == '7') && 
+          no_npc(world.cur_map->map[world.pc.pos[dim_y] - 1][world.pc.pos[dim_x] - 1]) &&
+          check_ter(world.cur_map->map[world.pc.pos[dim_y] - 1][world.pc.pos[dim_x] - 1]) &&
+          (world.pc.pos[dim_y] - 1 != 0 && world.pc.pos[dim_y] - 1 != MAP_Y) && 
+          (world.pc.pos[dim_x] - 1 != 0 && world.pc.pos[dim_x] - 1 != MAP_X) ){ //up left
+      world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] = person->c.prevous;
+      person->c.prevous = world.cur_map->map[world.pc.pos[dim_y] - 1][world.pc.pos[dim_x] - 1];
+      world.pc.pos[dim_y]--;
+      world.pc.pos[dim_x]--;
+      break;
+    }
+    else if((answer == 'k' || answer == '8') && 
+            no_npc(world.cur_map->map[world.pc.pos[dim_y]- 1][world.pc.pos[dim_x]]) &&
+            check_ter(world.cur_map->map[world.pc.pos[dim_y]- 1][world.pc.pos[dim_x]]) &&
+          (world.pc.pos[dim_y] - 1 != 0 && world.pc.pos[dim_y] - 1 != MAP_Y)){ //up
+      world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] = person->c.prevous;
+      person->c.prevous = world.cur_map->map[world.pc.pos[dim_y] - 1][world.pc.pos[dim_x]];
+      world.pc.pos[dim_y]--;
+      break;
+    }
+    else if((answer == 'u' || answer == '9') && 
+            no_npc(world.cur_map->map[world.pc.pos[dim_y]- 1][world.pc.pos[dim_x] + 1]) &&
+          check_ter(world.cur_map->map[world.pc.pos[dim_y]- 1][world.pc.pos[dim_x] + 1]) &&
+          (world.pc.pos[dim_y] - 1 != 0 && world.pc.pos[dim_y] - 1 != MAP_Y) && 
+          (world.pc.pos[dim_x] + 1 != 0 && world.pc.pos[dim_x] + 1 != MAP_X) ){ //up right
+      world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] = person->c.prevous;
+      person->c.prevous = world.cur_map->map[world.pc.pos[dim_y] - 1][world.pc.pos[dim_x] + 1];
+      world.pc.pos[dim_y]--;
+      world.pc.pos[dim_x]++;
+      break;
+    }
+
+    else if((answer == 'l' || answer == '6') && 
+            no_npc(world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x] + 1]) &&
+          check_ter(world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x] + 1])&& 
+          (world.pc.pos[dim_x] + 1 != 0 && world.pc.pos[dim_x] + 1 != MAP_X) ){ //left
+      world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] = person->c.prevous;
+      person->c.prevous = world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x] + 1];
+      world.pc.pos[dim_x]++;
+      break;
+    }
+    else if((answer == 'n' || answer == '3') && 
+            no_npc(world.cur_map->map[world.pc.pos[dim_y]+ 1][world.pc.pos[dim_x] + 1]) &&
+          check_ter(world.cur_map->map[world.pc.pos[dim_y] + 1][world.pc.pos[dim_x] + 1])&&
+          (world.pc.pos[dim_y] + 1 != 0 && world.pc.pos[dim_y] + 1 != MAP_Y) && 
+          (world.pc.pos[dim_x] + 1 != 0 && world.pc.pos[dim_x] + 1 != MAP_X) ){ //lower right 
+    
+    world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] = person->c.prevous;
+    person->c.prevous = world.cur_map->map[world.pc.pos[dim_y] + 1][world.pc.pos[dim_x] + 1]; 
+    world.pc.pos[dim_y]++;
+    world.pc.pos[dim_x]++;
+    break;
+    }
+
+    else if((answer == 'j' || answer == '2')&& 
+            no_npc(world.cur_map->map[world.pc.pos[dim_y]+ 1][world.pc.pos[dim_x]]) &&
+          check_ter(world.cur_map->map[world.pc.pos[dim_y]+ 1][world.pc.pos[dim_x]]) && 
+          (world.pc.pos[dim_y] + 1 != 0 && world.pc.pos[dim_y] + 1 != MAP_Y) ){ //down
+      world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] = person->c.prevous;
+      person->c.prevous = world.cur_map->map[world.pc.pos[dim_y] + 1][world.pc.pos[dim_x]];
+      world.pc.pos[dim_y]++;
+      break;
+    }
+    else if((answer == 'b' || answer == '1') && 
+            no_npc(world.cur_map->map[world.pc.pos[dim_y]+ 1][world.pc.pos[dim_x] - 1]) &&
+          check_ter(world.cur_map->map[world.pc.pos[dim_y]+ 1][world.pc.pos[dim_x] - 1]) && 
+          (world.pc.pos[dim_y] + 1 != 0 && world.pc.pos[dim_y] + 1 != MAP_Y) && 
+          (world.pc.pos[dim_x] - 1 != 0 && world.pc.pos[dim_x] - 1 != MAP_X) ){ //down left
+      world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] = person->c.prevous;
+      person->c.prevous = world.cur_map->map[world.pc.pos[dim_y] + 1][world.pc.pos[dim_x] - 1];
+      world.pc.pos[dim_y]++;
+      world.pc.pos[dim_x]--;
+      break;
+    }
+
+    else if((answer == '4' || answer == 'h') && 
+            no_npc(world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x] - 1]) &&
+          check_ter(world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x] - 1]) &&
+          (world.pc.pos[dim_x] - 1!= 0 && world.pc.pos[dim_x] - 1!= MAP_X) ){ //left
+      world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] = person->c.prevous;
+      person->c.prevous = world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x] - 1];
+      world.pc.pos[dim_x]--;
+      break;
+    }
+
+    else if(answer == '5' || answer == ' ' || answer == '.'){ //left
+      //empty
+      break;
+    }
+
+    // ======= extras =======
+    //buy screen
+    else if(answer == '>' && (world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] == ter_mart 
+                        || world.cur_map->map[world.pc.pos[dim_y]][world.pc.pos[dim_x]] == ter_center)){
+      printf("\nthis is buy screen q to leave");
+
+      scanf(" %c", &answer);
+      if(tolower(answer) == 'q'){
+
+      }
+      // scanf("%c", &buying);
+      // buying = tolower(buying);
+      // while(buying != 'q'){
+      //   print("this is buy screen");
+      // }
+    }
+    else if(answer == 't'){
+      item_t cur_item;
+      int vert, horz;
+      char *hdir, *vdir;
+
+      for(int i = 0; i < pqm->size; i++){
+        cur_item = pqm->items[i];
+        vert = cur_item.c.pos[dim_y] - world.pc.pos[dim_y];
+        horz = cur_item.c.pos[dim_x] - world.pc.pos[dim_x];
+
+        if(vert < 0){
+          vdir = "north";
+        }
+        else{
+          vdir = "south";
+        }
+
+      if(horz < 0){
+          hdir = "east";
+        }
+        else{
+          hdir = "west";
+        } 
+
+        if(cur_item.symbol != '@'){
+          printf("%c, %d %s %d %s \n", cur_item.c.symbol, abs(vert), vdir, abs(horz), hdir);
+        }
+      }
+
+      scanf(" %c", &answer);
+      break;
+    }
+    
+  }
+
+  
+  //update person with world.pc
+  person->c.pos[dim_y] = world.pc.pos[dim_y];
+  person->c.pos[dim_x] = world.pc.pos[dim_x];
+
+  person->next_turn = person->next_turn + 50;
+
+  pathfind(world.cur_map); //update dist maps
+
+  return person->next_turn;
+}
+
+void game_loop(PQ_t *pqm){
+  int index, futuremove;
+  item_t cur_person;
+  int done = 0;
+
+  while(!done){
+    index = peek(pqm);
+    cur_person = pqm->items[index];
 
     // int i = peek(&pqm); debug
     // char symbol = pqm.items[i].symbol;
@@ -2403,17 +2600,81 @@ void init_everyone()
       futuremove = move_wonder(&cur_person);
       break;
 
+    case '@':
+      futuremove = move_player(&cur_person, pqm);
+
+      if(futuremove < 0){
+        done = 1;
+      }
+      break;
+
     default:
       break;
     }
 
     print_map();
-    usleep(1000000 / 60);
+    //usleep(1000000 / 60);
 
-    deque(&pqm);
-    enque(&pqm, cur_person.symbol, futuremove, cur_person.seq_num, cur_person.c);
+    deque(pqm);
+    if(!(cur_person.c.dead) && cur_person.symbol != '@'){
+      enque(pqm, cur_person.symbol, futuremove, cur_person.seq_num, cur_person.c);
+    }
+    else if(cur_person.symbol == '@'){
+     enque(pqm, cur_person.symbol, futuremove, cur_person.seq_num, cur_person.c); 
+    }
     
   }
+}
+
+void init_everyone()
+{
+  PQ_t pqm;
+  PQ_init(&pqm);
+
+ cahr_t pc;
+  pc.pos[dim_y] = world.pc.pos[dim_y];
+  pc.pos[dim_x] = world.pc.pos[dim_x];
+  pc.symbol = '@';
+  pc.prevous =ter_path;
+
+  enque(&pqm, '@', 100, 0, pc);
+  //player is not include rn
+  for(int i = 0; i < global_count; i++){
+    char sym = world.cur_map->cahr[i].symbol;
+    int nextmove = 0;
+
+    if(sym == 'h'){
+      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
+    }
+    else if(sym == 'r'){
+      nextmove = world.rival_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
+    }
+    else if(sym == 'w'){
+      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
+    }
+    else if (sym == 'e')
+    {
+      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
+    }
+    else if (sym == 'p')
+    {
+      nextmove = world.hiker_dist[world.cur_map->cahr[i].pos[1]][world.cur_map->cahr[i].pos[0]];
+    }
+    if(sym != 's'){
+      enque(&pqm, sym, nextmove, i + 1, world.cur_map->cahr[i]);
+    }
+  }
+
+
+  // for(int i = 0; i < pqm.size; i++){
+  //   char symbol = pqm.items[i].symbol;
+  //   int next = pqm.items[i].next_turn;
+  //   int seq = pqm.items[i].seq_num;
+
+  //   printf("\n%c %d %d", symbol, next, seq);
+  // }
+
+  game_loop(&pqm);
 }
 
 int main(int argc, char *argv[])
