@@ -10,14 +10,14 @@ CXXFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
 
 LDFLAGS = 
 
-BIN = poke327
+BIN = poke32
 OBJS = poke327.o heap.o
 
 all: $(BIN) etags
 
 $(BIN): $(OBJS)
 	@$(ECHO) Linking $@
-	@$(CC) $^ -o $@ $(LDFLAGS)
+	@$(CXX) $^ -o $@ $(LDFLAGS)
 
 -include $(OBJS:.o=.d)
 
@@ -42,3 +42,9 @@ clobber: clean
 etags:
 	@$(ECHO) Updating TAGS
 	@etags *.[ch]
+
+cpp:
+	@$(ECHO) Compiling heap.c
+	gcc -c heap.c -o heap.o
+	@$(ECHO) Compiling poke327.cpp with heap.o
+	g++ poke327.cpp -o poke327 heap.o
