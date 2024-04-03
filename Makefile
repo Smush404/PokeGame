@@ -3,15 +3,15 @@ CXX = g++
 ECHO = echo
 RM = rm -f
 
-TERM = "S2019"
+TERM = "F2023"
 
 CFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
 CXXFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
 
-LDFLAGS = 
+LDFLAGS = -lncurses
 
-BIN = poke32
-OBJS = poke327.o heap.o
+BIN = poke327
+OBJS = poke327.o heap.o io.o character.o parser.o
 
 all: $(BIN) etags
 
@@ -42,9 +42,3 @@ clobber: clean
 etags:
 	@$(ECHO) Updating TAGS
 	@etags *.[ch]
-
-cpp:
-	@$(ECHO) Compiling heap.c
-	gcc -c heap.c -o heap.o
-	@$(ECHO) Compiling poke327.cpp with heap.o
-	g++ poke327.cpp -o poke327 heap.o
