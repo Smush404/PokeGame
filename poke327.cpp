@@ -8,6 +8,8 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <unistd.h>
+#include <iostream>
+
 
 
 #include "parser.h"
@@ -1197,64 +1199,244 @@ int main(int argc, char *argv[])
 
   database_init(&db);
 
-  if(argc > 1){
-    for(i = 0; i < argc; i++){
-      switch(argv[i][0]){
-        case 'p':
-          if(argv[i][7] == '_'){
-            switch (argv[i][8])
+  if (argc > 1)
+  {
+    for (i = 0; i < argc; i++)
+    {
+      switch (argv[i][0])
+      {
+      case 'p':
+        if (argv[i][7] == '_')
+        {
+          switch (argv[i][8])
+          {
+          case 'm':
+            cout << "pokemon_id	version_group_id	move_id	pokemon_move_method_id	level	order" << endl;
+        for (i = 0; i < 528238; i++)
+        {
+          std::cout << db.pokemon_moves[i].pokemon_id << "  " << db.pokemon_moves[i].version_group_id
+               << "  " << db.pokemon_moves[i].move_id<< "  " << db.pokemon_moves[i].pokemon_move_method_id<< "  " << db.pokemon_moves[i].level;
+          if (db.pokemon_moves[i].order == INT_MAX)
+          {
+            cout << "  "
+                 << "   ";
+          }
+          else
+          {
+            cout << "  " << db.pokemon_moves[i].order;
+          }
+
+          cout << endl;
+        }
+            break;
+
+          case 't':
+          cout << "pokemon_id	type_id	slot" << endl;
+              for (i = 0; i < 1675; i++)
+              {
+                std::cout << db.pokemon_types[i].pokemon_id << "  " << db.pokemon_types[i].type_id
+                          << "  " << db.pokemon_types[i].slot << endl;
+              }
+            printf("pokemon_type.csv");
+            break;
+          case 's':
+            if (argv[i][9] == 't')
             {
-              case 'm':
-                printf("pokemon_moves.csv");
-                break;
-
-              case 't':
-                printf("pokemon_type.csv");
-                break;
-              case 's':
-                if(argv[i][9] == 't')
-                printf("pokemon_stats.csv");
-                else{
-                  printf("pokemon_speices.csv");
-                }
-                break;
+              cout << "pokemon_id	stat_id	base_stat	effort" << endl;
+              for (i = 0; i < 6552; i++)
+              {
+                std::cout << db.pokemon_stats[i].pokemon_id << "  " << db.pokemon_stats[i].stat_id
+                          << "  " << db.pokemon_stats[i].base_stat << "  " << db.pokemon_stats[i].effort << endl;
+              }
+              printf("pokemon_stats.csv");
             }
-          }
-          else{
-            printf("pokemon.csv");
-          }
-          break;
+            else
+            {
+              cout << "id	identifier	generation_id	evolves_from_species_id	evolution_chain_id	color_id	shape_id	habitat_id	gender_rate	capture_rate	base_happiness	is_baby	hatch_counter	has_gender_differences	growth_rate_id	forms_switchable	is_legendary	is_mythical	order	conquest_order" << endl;
+              for (i = 0; i < 898; i++)
+              {
+                std::cout << db.pokemon[i].ID;
+                cout << "  " << db.pokemon[i].identifier;
+                if (db.pokemon_speices[i].evolves_from_species_id == INT_MAX)
+                {
+                  cout << "  "
+                       << "   ";
+                }
+                else
+                {
+                  cout << "  " << db.pokemon_speices[i].evolves_from_species_id;
+                }
+                cout << "  " << db.pokemon_speices[i].evolution_chain_id
+                     << "  " << db.pokemon_speices[i].color_id
+                     << "  " << db.pokemon_speices[i].shape_id
+                     << "  " << db.pokemon_speices[i].habitat_id
+                     << "  " << db.pokemon_speices[i].gender_rate
+                     << "  " << db.pokemon_speices[i].capture_rate
+                     << "  " << db.pokemon_speices[i].base_happiness
+                     << "  " << db.pokemon_speices[i].is_baby
+                     << "  " << db.pokemon_speices[i].hatch_counter
+                     << "  " << db.pokemon_speices[i].has_gender_differences
+                     << "  " << db.pokemon_speices[i].growth_rate_id
+                     << "  " << db.pokemon_speices[i].forms_switchable
+                     << "  " << db.pokemon_speices[i].is_legendary
+                     << "  " << db.pokemon_speices[i].is_mythical
+                     << "  " << db.pokemon_speices[i].order;
+                if (db.pokemon_speices[i].conquest_order == INT_MAX)
+                {
+                  cout << "  "
+                       << "   ";
+                }
+                else
+                {
+                  cout << "  " << db.pokemon_speices[i].conquest_order;
+                }
+                cout << endl;
+                printf("pokemon_speices.csv");
+              }
+              break;
+            }
+          }}
+        else
+          {
+            cout << "id	identifier	 species_id height weight base_exp" << endl; 
+                for (i = 0; i < 1092; i++)
+                {
+                  std::cout << db.pokemon[i].ID;
+                  cout << "  " << db.pokemon[i].identifier
+                       << "  " << db.pokemon[i].species_id
+                       << "  " << db.pokemon[i].height
+                       << "  " << db.pokemon[i].weight
+                       << "  " << db.pokemon[i].base_experience
+                       << "  " << db.pokemon[i].order
+                       << "  " << db.pokemon[i].is_default << endl;
+                }
 
-        case 't':
-          printf("type.csv");
-          break;
+                printf("pokemon.csv");
+          }
+        break;
 
-        case 's':
+      case 't':
+        cout << "type_id	local_language_id	 name" << endl;
+        for (i = 0; i < 193; i++)
+        {
+          std::cout << db.type_names[i].type_id << "  " << db.type_names[i].local_language_id
+                    << "  " << db.type_names[i].name << endl;
+        }
+        printf("type.csv");
+        break;
+
+      case 's':
+        cout << "id	damage_class_id	identifier	is_battle_only	game_index" << endl;
+        for (i = 0; i < 8; i++)
+        {
+          std::cout << db.stats[i].id;
+          if (db.stats[i].damage_class_id == INT_MAX)
+          {
+            cout << "  "
+                 << "   ";
+          }
+          else
+          {
+            cout << "  " << db.stats[i].damage_class_id;
+          }
+          cout << "  " << db.stats[i].identifier
+               << "  " << db.stats[i].is_battle_only;
+
+          if (db.stats[i].game_index == INT_MAX)
+          {
+            cout << "  " << "   ";
+          }
+          else
+          {
+            cout << "  " << db.stats[i].game_index << endl;
+          }
+        }
         printf("stat.csv");
-          break;
+        break;
 
-        case 'm':
-        printf("moves.csv");
-          break;
-          
-        case 'e':
+      case 'm':
+        cout << "id	identifier	generation_id	type_id	power	pp	accuracy	priority	target_id	damage_class_id	effect_id	effect_chance	contest_type_id	contest_effect_id	super_contest_effect_id" << endl;
+        for (i = 0; i < 844; i++)
+        {
+          std::cout << db.moves[i].id
+                    << "  " << db.moves[i].identifier
+                    << "  " << db.moves[i].generation_id
+                    << "  " << db.moves[i].type_id;
+
+          if (db.moves[i].power == INT_MAX)
+          {
+            cout << "  "
+                 << "   ";
+          }
+          else
+          {
+            cout << "  " << db.moves[i].power;
+          }
+
+          if (db.moves[i].pp == INT_MAX)
+          {
+            cout << "  "
+                 << "   ";
+          }
+          else
+          {
+            cout << "  " << db.moves[i].pp;
+          }
+
+          if (db.moves[i].accuracy == INT_MAX)
+          {
+            cout << "  "
+                 << "   ";
+          }
+          else
+          {
+            cout << "  " << db.moves[i].accuracy;
+          }
+          cout << "  " << db.moves[i].priority;
+          cout << "  " << db.moves[i].target_id;
+          cout << "  " << db.moves[i].damage_class_id;
+          cout << "  " << db.moves[i].effect_id;
+          if (db.moves[i].effect_chance == INT_MAX)
+          {
+            cout << "  "
+                 << "   ";
+          }
+          else
+          {
+            cout << "  " << db.moves[i].effect_chance;
+          }
+          cout << "  " << db.moves[i].contest_type_id;
+          cout << "  " << db.moves[i].contest_effect_id;
+          cout << "  " << db.moves[i].super_contest_effect_id << std::endl;
+        }
+        break;
+
+      case 'e':
+        cout << "growth_rate_id	level	experience" << endl;
+        for (i = 0; i < 600; i++)
+        {
+          std::cout << db.moves[i].id
+                    << "  " << db.exp[i].growth_rate_id
+                    << "  " << db.exp[i].level
+                    << "  " << db.exp[i].experience << std::endl;
+        }
         printf("xp.csv");
-          break;
+        break;
       }
     }
   }
 
-  return 0; //temp stop
+  return 0; // temp stop
 
   io_init_terminal();
-  
+
   init_world();
 
   /* print_hiker_dist(); */
-  
+
   /*
   do {
-    print_map();  
+    print_map();
     printf("Current position is %d%cx%d%c (%d,%d).  "
            "Enter command: ",
            abs(world.cur_idx[dim_x] - (WORLD_SIZE / 2)),

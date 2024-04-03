@@ -2,38 +2,63 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <filesystem>
 
 
 #include "parser.h" 
 #include <iostream>
 
 using namespace std;
-
-/**
- * do folder finding to csv
- * print out the right db to the screen
-*/
+namespace fs = std::filesystem;
 
 int database_init(database *db){
-    const char *path;
+    // const char *path;
 
-    path = getenv("PWD");
+    const char * path;
 
-    cout << path << endl;
+    if(fs::exists("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv")){
+        cout << "trying local" << endl;
+        path = "/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv";
+    }
+    else if(fs::exists(("/share/cs327/pokedex/pokedex/data/csv"))){
+        cout << "trying share file" << endl;
+        path = "/share/cs327/pokedex/pokedex/data/csv";
+    }
+    else if(fs::exists("/.poke327/.")){
+        cout << "trying /.poke327/." << endl;
+        path = "/.poke327/.";
+    }
+    else{
+        cerr << "Error: Could not find CSV files!" << endl;
+    }
+
+    // if(getenv("HOME/.poke327/.") != NULL){
+    //     path = getenv("HOME/.poke327/.");
+    //     cout << path << endl;
+    // }
+    // else if(getenv("/share/cs327/pokedex/pokedex/data/csv") != NULL){
+
+    //     path = getenv("/share/cs327/pokedex/pokedex/data/csv");
+
+    //     cout << path << endl;
+    // }
+    // else if(getenv("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv") != NULL){
+    //     path = getenv("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv");
+
+    //     cout << path << endl;
+    // }
 
 
+    pokemon_driver(path, db);
+    pokemon_types_driver(path, db);
+    pokemon_stats_driver(path, db);
+    pokemon_moves_driver(path, db);
+    pokemon_speices_driver(path, db);
 
-
-    pokemon_driver("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv", db);
-    pokemon_types_driver("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv", db);
-    pokemon_stats_driver("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv", db);
-    pokemon_moves_driver("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv", db);
-    pokemon_speices_driver("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv", db);
-
-    exp_driver("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv", db);
-    moves_driver("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv", db);
-    stats_driver("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv", db);
-    type_names_driver("/Users/haakon/Documents/327/pokegameCSV/pokedex/data/csv", db);
+    exp_driver(path, db);
+    moves_driver(path, db);
+    stats_driver(path, db);
+    type_names_driver(path, db);
     
     return 0;
 }
