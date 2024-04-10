@@ -759,10 +759,14 @@ void new_hiker()
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
 
-  poke p = npc_pokemon_event(c);
-  string s = "name: " + std::to_string(c->symbol) + " pokemon " + p.name.c_str();
-  // string s = "name: " + std::string(c->symbol) + " pokemon " + p.name;
-  io_queue_message(s.c_str());
+  npc_pokemon_event(c);
+
+  if(rand() % 100 <= 60){
+    npc_pokemon_event(c);
+  }
+  // string s = "name: " + std::to_string(c->symbol) + " pokemon " + p.name.c_str();
+  // // string s = "name: " + std::string(c->symbol) + " pokemon " + p.name;
+  // io_queue_message(s.c_str());
   heap_insert(&world.cur_map->turn, c);
   add_npclist(c);
   
@@ -793,6 +797,9 @@ void new_rival()
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
   npc_pokemon_event(c);
+  if(rand() % 100 <= 60){
+    npc_pokemon_event(c);
+  }
   heap_insert(&world.cur_map->turn, c);
   add_npclist(c);
 }
@@ -818,6 +825,9 @@ void new_swimmer()
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
   npc_pokemon_event(c); 
+  if(rand() % 100 <= 60){
+    npc_pokemon_event(c);
+  }
   heap_insert(&world.cur_map->turn, c);
   add_npclist(c);
 }
@@ -861,6 +871,9 @@ void new_char_other()
   c->defeated = 0;
   c->next_turn = 0;
   c->seq_num = world.char_seq_num++;
+  if(rand() % 100 <= 60){
+    npc_pokemon_event(c);
+  }
   npc_pokemon_event(c);
   add_npclist(c);
 }
