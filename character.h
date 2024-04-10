@@ -5,8 +5,10 @@
 
 # include "pair.h"
 
+#include <string>
 #define DIJKSTRA_PATH_MAX (INT_MAX / 2)
 #define NO_NPCS 50
+#define NUM_POKEMON 50
 
 typedef enum __attribute__ ((__packed__)) movement_type {
   move_hiker,
@@ -40,15 +42,30 @@ class character {
   int seq_num;
 };
 
+class poke{
+  public:
+    double hp, attack, defense, speed, sp_attack, sp_defence;
+    int id, exp, level, iv, is_shiny;
+    int moveset[2];
+    std::string name;
+};
+
+
+
 class npc : public character {
  public:
   character_type_t ctype;
   movement_type_t mtype;
   int defeated;
+  poke pl[6];
+  int pindex = 0;
   pair_t dir;
 };
 
 class pc : public character {
+  public:
+    int pindex = 0;
+    poke pokelist[NUM_POKEMON];
 };
 
 /* character is defined in poke327.h to allow an instance of character

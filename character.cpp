@@ -425,7 +425,7 @@ void (*move_func[num_movement_types])(character *, pair_t) = {
   move_sentry_func,
   move_explorer_func,
   move_swimmer_func,
-  move_pc_func,
+  move_pc_func
 };
 
 int32_t cmp_char_turns(const void *key, const void *with)

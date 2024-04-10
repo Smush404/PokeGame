@@ -13,9 +13,9 @@ An ACII game a lot like Pokemon.
 ```
 
 ## BUGS
-1) not really a bug but formating is off becuase it just for debuging and I dont have the time of day to make a million formating methods. 
+1) not really a bug but formating is off becuase it just for debuging and I dont have the time to make a million formating methods. 
 
-2) if it can not find the database it will tell you that it can not other then that the pathing on the server makes no sense to me i did my best. the important thing is that the datbase should build if the CSV files are found.
+2) if it can not find the database it will tell you that it can not other then that the pathing on the server makes no sense to me i did my best. the important thing is that the datbase should build if the CSV files are found. if there is a problem with this let me know i can come to office hours
 
 
 

@@ -7,6 +7,7 @@
 
 #include "parser.h" 
 #include <iostream>
+#include <climits>
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -112,21 +113,21 @@ void pokemon_driver(const char *path, database *db){
         getline(inputString, tempString, ',');
         is_default = atoi(tempString.c_str());
         
-        db->pokemon[i].ID = ID;
-        db->pokemon[i].identifier = identifier;
-        db->pokemon[i].species_id = species_id;
-        db->pokemon[i].height = height;
-        db->pokemon[i].weight = weight;
-        db->pokemon[i].base_experience = base_experience;
-        db->pokemon[i].order = order;
-        db->pokemon[i].is_default = is_default;
+        db->pokemonl[i].ID = ID;
+        db->pokemonl[i].identifier = identifier;
+        db->pokemonl[i].species_id = species_id;
+        db->pokemonl[i].height = height;
+        db->pokemonl[i].weight = weight;
+        db->pokemonl[i].base_experience = base_experience;
+        db->pokemonl[i].order = order;
+        db->pokemonl[i].is_default = is_default;
 
         line = "";
         i++;
     }
 
     // for(i = 0; i < 1092; i++){
-    //     cout << "ID:" << db->pokemon[i].ID << " Name:" << db->pokemon[i].identifier << endl;
+    //     cout << "ID:" << db->pokemonl[i].ID << " Name:" << db->pokemonl[i].identifier << endl;
     // }
 }
 
@@ -161,9 +162,9 @@ void pokemon_types_driver(const char *path, database *db){
         getline(inputString, tempString, ',');
         slot = atoi(tempString.c_str());
         
-        db->pokemon_types[i].pokemon_id = pokemon_id;
-        db->pokemon_types[i].type_id = type_id;
-        db->pokemon_types[i].slot = slot;
+        db->pokemon_typesl[i].pokemon_id = pokemon_id;
+        db->pokemon_typesl[i].type_id = type_id;
+        db->pokemon_typesl[i].slot = slot;
 
         line = "";
         i++;
@@ -209,10 +210,10 @@ void pokemon_stats_driver(const char *path, database *db){
         getline(inputString, tempString, ',');
         effort = atoi(tempString.c_str());
         
-        db->pokemon_stats[i].pokemon_id = pokemon_id;
-        db->pokemon_stats[i].stat_id = stat_id;
-        db->pokemon_stats[i].base_stat = base_stat;
-        db->pokemon_stats[i].effort = effort;
+        db->pokemon_statsl[i].pokemon_id = pokemon_id;
+        db->pokemon_statsl[i].stat_id = stat_id;
+        db->pokemon_statsl[i].base_stat = base_stat;
+        db->pokemon_statsl[i].effort = effort;
 
         line = "";
         i++;
@@ -269,19 +270,19 @@ void pokemon_moves_driver(const char *path, database *db){
         }
 
 
-        db->pokemon_moves[i].pokemon_id = pokemon_id;
-        db->pokemon_moves[i].version_group_id = version_id;
-        db->pokemon_moves[i].move_id = move_id;
-        db->pokemon_moves[i].pokemon_move_method_id = p_move_method_id;
-        db->pokemon_moves[i].level = level;
-        db->pokemon_moves[i].order = order;
+        db->pokemon_movesl[i].pokemon_id = pokemon_id;
+        db->pokemon_movesl[i].version_group_id = version_id;
+        db->pokemon_movesl[i].move_id = move_id;
+        db->pokemon_movesl[i].pokemon_move_method_id = p_move_method_id;
+        db->pokemon_movesl[i].level = level;
+        db->pokemon_movesl[i].order = order;
 
         line = "";
         i++;
     }
 
     // for(i = 0; i < 528238; i++){
-    //     cout << "ID: " << db->pokemon_moves[i].pokemon_id << " Order: " << db->pokemon_moves[i].order << endl;
+    //     cout << "ID: " << db->pokemon_movesl[i].pokemon_id << " Order: " << db->pokemon_movesl[i].order << endl;
     // }
 }
 
@@ -387,26 +388,26 @@ void pokemon_speices_driver(const char *path, database *db){
         }
 
 
-        db->pokemon_speices[i].id = pokemon_id;
-        db->pokemon_speices[i].identifier = identifier;
-        db->pokemon_speices[i].generation_id = gene_id;
-        db->pokemon_speices[i].evolves_from_species_id = evol_from_id;
-        db->pokemon_speices[i].evolution_chain_id = evolution_chain_id;
-        db->pokemon_speices[i].color_id = color_id;
-        db->pokemon_speices[i].shape_id = shape_id;
-        db->pokemon_speices[i].habitat_id = habitat_id;
-        db->pokemon_speices[i].gender_rate = gender_rate;
-        db->pokemon_speices[i].capture_rate = capture_rate;
-        db->pokemon_speices[i].base_happiness = base_happy;
-        db->pokemon_speices[i].is_baby = is_baby;
-        db->pokemon_speices[i].hatch_counter = hatch_couunt;
-        db->pokemon_speices[i].has_gender_differences = gender_diff;
-        db->pokemon_speices[i].growth_rate_id = grow_rate;
-        db->pokemon_speices[i].forms_switchable = forms_swtich;
-        db->pokemon_speices[i].is_legendary = is_leg;
-        db->pokemon_speices[i].is_mythical = is_myth;
-        db->pokemon_speices[i].conquest_order = conquest_order;
-        db->pokemon_speices[i].order = order;
+        db->pokemon_speicesl[i].id = pokemon_id;
+        db->pokemon_speicesl[i].identifier = identifier;
+        db->pokemon_speicesl[i].generation_id = gene_id;
+        db->pokemon_speicesl[i].evolves_from_species_id = evol_from_id;
+        db->pokemon_speicesl[i].evolution_chain_id = evolution_chain_id;
+        db->pokemon_speicesl[i].color_id = color_id;
+        db->pokemon_speicesl[i].shape_id = shape_id;
+        db->pokemon_speicesl[i].habitat_id = habitat_id;
+        db->pokemon_speicesl[i].gender_rate = gender_rate;
+        db->pokemon_speicesl[i].capture_rate = capture_rate;
+        db->pokemon_speicesl[i].base_happiness = base_happy;
+        db->pokemon_speicesl[i].is_baby = is_baby;
+        db->pokemon_speicesl[i].hatch_counter = hatch_couunt;
+        db->pokemon_speicesl[i].has_gender_differences = gender_diff;
+        db->pokemon_speicesl[i].growth_rate_id = grow_rate;
+        db->pokemon_speicesl[i].forms_switchable = forms_swtich;
+        db->pokemon_speicesl[i].is_legendary = is_leg;
+        db->pokemon_speicesl[i].is_mythical = is_myth;
+        db->pokemon_speicesl[i].conquest_order = conquest_order;
+        db->pokemon_speicesl[i].order = order;
 
         line = "";
         i++;
@@ -432,13 +433,13 @@ void exp_driver(const char *path, database *db){
         stringstream inputString(line);
 
         getline(inputString, tempString, ',');
-        db->exp[i].growth_rate_id = atoi(tempString.c_str());
+        db->expl[i].growth_rate_id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->exp[i].level = atoi(tempString.c_str());
+        db->expl[i].level = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->exp[i].experience = atoi(tempString.c_str());
+        db->expl[i].experience = atoi(tempString.c_str());
 
         line = "";
         i++;
@@ -464,67 +465,67 @@ void moves_driver(const char *path, database *db){
         stringstream inputString(line);
 
         getline(inputString, tempString, ',');
-        db->moves[i].id = atoi(tempString.c_str());
+        db->movesl[i].id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->moves[i].identifier = tempString;
+        db->movesl[i].identifier = tempString;
 
         getline(inputString, tempString, ',');
-        db->moves[i].generation_id = atoi(tempString.c_str());
+        db->movesl[i].generation_id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->moves[i].type_id = atoi(tempString.c_str());
-
-        getline(inputString, tempString, ',');
-        if(atoi(tempString.c_str())){
-            db->moves[i].power = atoi(tempString.c_str());
-        }
-        else{
-            db->moves[i].power = INT_MAX;
-        }
+        db->movesl[i].type_id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
         if(atoi(tempString.c_str())){
-            db->moves[i].pp = atoi(tempString.c_str());
+            db->movesl[i].power = atoi(tempString.c_str());
         }
         else{
-            db->moves[i].pp = INT_MAX;
+            db->movesl[i].power = INT_MAX;
+        }
+
+        getline(inputString, tempString, ',');
+        if(atoi(tempString.c_str())){
+            db->movesl[i].pp = atoi(tempString.c_str());
+        }
+        else{
+            db->movesl[i].pp = INT_MAX;
         }
 
         if(atoi(tempString.c_str())){
-            db->moves[i].accuracy = atoi(tempString.c_str());
+            db->movesl[i].accuracy = atoi(tempString.c_str());
         }
         else{
-            db->moves[i].accuracy = INT_MAX;
+            db->movesl[i].accuracy = INT_MAX;
         }
 
         getline(inputString, tempString, ',');
-        db->moves[i].priority = atoi(tempString.c_str());
+        db->movesl[i].priority = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->moves[i].target_id = atoi(tempString.c_str());
+        db->movesl[i].target_id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->moves[i].damage_class_id = atoi(tempString.c_str());
+        db->movesl[i].damage_class_id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->moves[i].effect_id = atoi(tempString.c_str());
+        db->movesl[i].effect_id = atoi(tempString.c_str());
 
         if(atoi(tempString.c_str())){
-            db->moves[i].effect_chance = atoi(tempString.c_str());
+            db->movesl[i].effect_chance = atoi(tempString.c_str());
         }
         else{
-            db->moves[i].effect_chance = INT_MAX;
+            db->movesl[i].effect_chance = INT_MAX;
         }
 
         getline(inputString, tempString, ',');
-        db->moves[i].contest_type_id = atoi(tempString.c_str());
+        db->movesl[i].contest_type_id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->moves[i].contest_effect_id = atoi(tempString.c_str());
+        db->movesl[i].contest_effect_id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->moves[i].super_contest_effect_id = atoi(tempString.c_str());
+        db->movesl[i].super_contest_effect_id = atoi(tempString.c_str());
 
         line = "";
         i++;
@@ -551,28 +552,28 @@ void stats_driver(const char *path, database *db){
 
 
         getline(inputString, tempString, ',');
-        db->stats[i].id = atoi(tempString.c_str());
+        db->statsl[i].id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
         if(atoi(tempString.c_str())){
-            db->stats[i].damage_class_id = atoi(tempString.c_str());
+            db->statsl[i].damage_class_id = atoi(tempString.c_str());
         }
         else{
-            db->stats[i].damage_class_id = INT_MAX;
+            db->statsl[i].damage_class_id = INT_MAX;
         }
 
         getline(inputString, tempString, ',');
-        db->stats[i].identifier = tempString;
+        db->statsl[i].identifier = tempString;
 
         getline(inputString, tempString, ',');
-        db->stats[i].is_battle_only = atoi(tempString.c_str());
+        db->statsl[i].is_battle_only = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
         if(atoi(tempString.c_str())){
-            db->stats[i].game_index = atoi(tempString.c_str());
+            db->statsl[i].game_index = atoi(tempString.c_str());
         }
         else{
-            db->stats[i].game_index = INT_MAX;
+            db->statsl[i].game_index = INT_MAX;
         }
 
         line = "";
@@ -599,13 +600,13 @@ void type_names_driver(const char *path, database *db){
         stringstream inputString(line);
 
         getline(inputString, tempString, ',');
-        db->type_names[i].type_id = atoi(tempString.c_str());
+        db->type_namesl[i].type_id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->type_names[i].local_language_id = atoi(tempString.c_str());
+        db->type_namesl[i].local_language_id = atoi(tempString.c_str());
 
         getline(inputString, tempString, ',');
-        db->type_names[i].name = tempString;
+        db->type_namesl[i].name = tempString;
 
         line = "";
         i++;

@@ -115,15 +115,15 @@ class type_names{
 
 class database{
     public:
-        pokemon pokemon[1092];
-        pokemon_types pokemon_types[1675];
-        pokemon_stats pokemon_stats[6552];
-        pokemon_speices pokemon_speices[898];
-        pokemon_moves pokemon_moves[528238];
-        moves moves[844];
-        experance exp[600];
-        stats stats[8];
-        type_names type_names[193];
+        pokemon pokemonl[1092];
+        pokemon_types pokemon_typesl[1675];
+        pokemon_stats pokemon_statsl[6552];
+        pokemon_speices pokemon_speicesl[898];
+        pokemon_moves pokemon_movesl[528238];
+        moves movesl[844];
+        experance expl[600];
+        stats statsl[8];
+        type_names type_namesl[193];
 };
 
 

@@ -7,6 +7,7 @@
 # include "heap.h"
 # include "character.h"
 # include "pair.h"
+# include "parser.h"
 
 #define malloc(size) ({                 \
   char *_tmp;                           \

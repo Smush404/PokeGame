@@ -7,9 +7,14 @@
 #include "io.h"
 #include "character.h"
 #include "poke327.h"
+#include "parser.h"
 
 #define TRAINER_LIST_FIELD_WIDTH 46
 
+npc *npclist[50];
+int nextnpc;
+
+database *io_db;
 typedef struct io_message {
   /* Will print " --more-- " at end of line when another message follows. *
    * Leave 10 extra spaces for that.                                      */
@@ -19,8 +24,14 @@ typedef struct io_message {
 
 static io_message_t *io_head, *io_tail;
 
-void io_init_terminal(void)
+void add_npclist(npc *np){
+  npclist[nextnpc] = np;
+  nextnpc++;
+}
+
+void io_init_terminal(database *d)
 {
+  io_db = d;
   initscr();
   raw();
   noecho();
@@ -397,6 +408,148 @@ void io_battle(character *aggressor, character *defender)
   }
 }
 
+poke npc_pokemon_event(npc *np){
+  poke p;
+
+  int rand_moves;
+  int randdom_index = rand() % 1092;
+
+  pokemon new_pokemon = io_db->pokemonl[randdom_index];
+  p.id = new_pokemon.ID;
+
+  // pokemon_moves pm = io_db->pokemon_movesl[p.id];
+
+  moves m;
+
+    rand_moves = rand() % 844;
+    m = io_db->movesl[rand_moves];
+
+  p.name = new_pokemon.identifier;
+
+  p.moveset[0] = m.id;
+
+  pokemon_stats ps = io_db->pokemon_statsl[p.id + 1];
+  p.attack = ps.base_stat;
+
+  ps = io_db->pokemon_statsl[p.id + 2];
+  p.defense = ps.base_stat;
+
+  p.exp = new_pokemon.base_experience;
+  ps = io_db->pokemon_statsl[p.id];
+  p.hp = ps.base_stat;
+
+  ps = io_db->pokemon_statsl[p.id + 3];
+  p.sp_attack = ps.base_stat;
+
+  ps = io_db->pokemon_statsl[p.id + 4];
+  p.sp_defence = ps.base_stat;
+
+  ps = io_db->pokemon_statsl[p.id + 5];
+  p.speed = ps.base_stat;
+
+  p.iv = rand() % 15;
+
+  p.is_shiny = (int) rand() % 8192 == 0;
+
+  int distance = abs(max(world.cur_idx[dim_y], world.cur_idx[dim_x]));
+
+
+  
+
+  if(distance <= 200){
+    if(distance < 3){
+      p.level = 1;
+    }
+    p.level = distance / 2;
+  }
+  else{
+    p.level = (distance - 200) / 2;
+  }
+
+  if(p.level == 0) { p.level = 1;}
+
+  world.pc.pokelist[world.pc.pindex] = p;
+  world.pc.pindex++;
+
+  np->pl[0] = p;
+  np->pindex++;
+
+  return p;
+}
+
+void pokemon_event(){
+  poke p;
+
+  int rand_moves;
+  int randdom_index = rand() % 1092;
+
+  pokemon new_pokemon = io_db->pokemonl[randdom_index];
+  p.id = new_pokemon.ID;
+
+  pokemon_moves pm = io_db->pokemon_movesl[p.id];
+
+  moves m;
+
+    rand_moves = rand() % 844;
+    m = io_db->movesl[rand_moves];
+
+  p.name = new_pokemon.identifier;
+
+  p.moveset[0] = m.id;
+
+  pokemon_stats ps = io_db->pokemon_statsl[p.id + 1];
+  p.attack = ps.base_stat;
+
+  ps = io_db->pokemon_statsl[p.id + 2];
+  p.defense = ps.base_stat;
+
+  p.exp = new_pokemon.base_experience;
+  ps = io_db->pokemon_statsl[p.id];
+  p.hp = ps.base_stat;
+
+  ps = io_db->pokemon_statsl[p.id + 3];
+  p.sp_attack = ps.base_stat;
+
+  ps = io_db->pokemon_statsl[p.id + 4];
+  p.sp_defence = ps.base_stat;
+
+  ps = io_db->pokemon_statsl[p.id + 5];
+  p.speed = ps.base_stat;
+
+  p.iv = rand() % 15;
+
+  p.is_shiny = (int) rand() % 8192 == 0;
+
+  int distance = abs(max(world.cur_idx[dim_y], world.cur_idx[dim_x]));
+
+
+  
+
+  if(distance <= 200){
+    if(distance < 3){
+      p.level = 1;
+    }
+    p.level = distance / 2;
+  }
+  else{
+    p.level = (distance - 200) / 2;
+  }
+
+  if(p.level == 0) { p.level = 1;}
+
+  world.pc.pokelist[world.pc.pindex] = p;
+  world.pc.pindex++;
+
+
+  
+  std::string su = "name: " + new_pokemon.identifier +  " level: " + std::to_string(pm.level)+ " attack: " + std::to_string(p.attack)+ " defence: " + std::to_string(p.defense)+ " shiny: " + std::to_string(p.is_shiny);
+  const char * s = su.c_str();
+  io_display();
+  mvprintw(0, 0, s);
+  refresh();
+  getch();
+}
+
 uint32_t move_pc_dir(uint32_t input, pair_t dest)
 {
   dest[dim_y] = world.pc.pos[dim_y];
@@ -464,6 +617,12 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
     return 1;
   }
 
+  if(world.cur_map->map[dest[dim_y]][dest[dim_x]] == ter_grass 
+     && rand() % 100 < 10
+    ){
+      pokemon_event();
+  } 
+
   return 0;
 }
 
@@ -508,6 +667,7 @@ void io_handle_input(pair_t dest)
 {
   uint32_t turn_not_consumed;
   int key;
+  std::string ss;
 
   do {
     switch (key = getch()) {
@@ -585,24 +745,19 @@ void io_handle_input(pair_t dest)
       break;    
     case 'q':
       /* Demonstrate use of the message queue.  You can use this for *
-       * printf()-style debugging (though gdb is probably a better   *
+       * printf()-style debugging (though gio_db is probably a better   *
        * option.  Not that it matters, but using this command will   *
        * waste a turn.  Set turn_not_consumed to 1 and you should be *
        * able to figure out why I did it that way.                   */
-      // io_queue_message("This is the first message.");
-      // io_queue_message("Since there are multiple messages, "
-      //                  "you will see \"more\" prompts.");
-      // io_queue_message("You can use any key to advance through messages.");
-      // io_queue_message("Normal gameplay will not resume until the queue "
-      //                  "is empty.");
-      // io_queue_message("Long lines will be truncated, not wrapped.");
-      // io_queue_message("io_queue_message() is variadic and handles "
-      //                  "all printf() conversion specifiers.");
-      // io_queue_message("Did you see %s?", "what I did there");
-      // io_queue_message("When the last message is displayed, there will "
-      //                  "be no \"more\" prompt.");
-      // io_queue_message("Have fun!  And happy printing!");
-      // io_queue_message("Oh!  And use 'Q' to quit!");
+
+      for(int i = 0; i < nextnpc; i++){
+        ss = "name: ";
+        ss += npclist[i]->symbol;
+        ss += " pokemon: " + npclist[i]->pl[0].name;
+        ss += " index i: " + std::to_string(nextnpc);
+        io_queue_message(ss.c_str());
+      }
+      io_queue_message("done with the trainer list");
 
       dest[dim_y] = world.pc.pos[dim_y];
       dest[dim_x] = world.pc.pos[dim_x];
