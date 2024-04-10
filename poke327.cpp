@@ -915,6 +915,8 @@ void init_pc()
 
   world.pc.seq_num = world.char_seq_num++;
 
+  pokemon_start();
+
   heap_insert(&world.cur_map->turn, &world.pc);
 }
 

@@ -339,8 +339,7 @@ static void io_list_trainers_display(npc **c, uint32_t count)
   if (count <= 13) {
     mvprintw(count + 6, 19, " %-40s ", "");
     mvprintw(count + 7, 19, " %-40s ", "Hit escape to continue.");
-    while (getch() != 27 /* escape */)
-      ;
+    while (getch() != 27 /* escape */);
   } else {
     mvprintw(19, 19, " %-40s ", "");
     mvprintw(20, 19, " %-40s ",
@@ -421,12 +420,14 @@ poke npc_pokemon_event(npc *np){
 
   moves m;
 
+  for(int i = 0; i < 2; i++){
     rand_moves = rand() % 844;
     m = io_db->movesl[rand_moves];
 
-  p.name = new_pokemon.identifier;
+    p.name = new_pokemon.identifier;
 
-  p.moveset[0] = m.id;
+    p.moveset[i] = m.id;
+  }
 
   pokemon_stats ps = io_db->pokemon_statsl[p.id + 1];
   p.attack = ps.base_stat;
@@ -477,6 +478,192 @@ poke npc_pokemon_event(npc *np){
   return p;
 }
 
+void pokemon_start(){
+  poke plist[3];
+  moves m;
+  poke p;
+  pokemon new_pokemon;
+
+  pokemon_stats ps;
+
+  int indexer = 0;
+
+  while(indexer != 3){
+    int rand_moves;
+    int randdom_index = rand() % 1092;
+
+    new_pokemon = io_db->pokemonl[randdom_index];
+    p.id = new_pokemon.ID;
+
+  for(int i = 0; i < 2; i++){
+    rand_moves = rand() % 844;
+    m = io_db->movesl[rand_moves];
+
+    p.name = new_pokemon.identifier;
+
+    p.moveset[i] = m.id;
+  }
+
+    p.name = new_pokemon.identifier;
+
+    p.moveset[0] = m.id;
+
+    ps = io_db->pokemon_statsl[p.id + 1];
+    p.attack = ps.base_stat;
+
+    ps = io_db->pokemon_statsl[p.id + 2];
+    p.defense = ps.base_stat;
+
+    p.exp = new_pokemon.base_experience;
+    ps = io_db->pokemon_statsl[p.id];
+    p.hp = ps.base_stat;
+
+    ps = io_db->pokemon_statsl[p.id + 3];
+    p.sp_attack = ps.base_stat;
+
+    ps = io_db->pokemon_statsl[p.id + 4];
+    p.sp_defence = ps.base_stat;
+
+    ps = io_db->pokemon_statsl[p.id + 5];
+    p.speed = ps.base_stat;
+
+    p.iv = rand() % 15;
+
+    p.is_shiny = (int) rand() % 8192 == 0;
+
+    int distance = abs(max(world.cur_idx[dim_y], world.cur_idx[dim_x]));
+
+    if(distance <= 200){
+      if(distance < 3){
+        p.level = 1;
+      }
+      p.level = distance / 2;
+    }
+    else{
+      p.level = (distance - 200) / 2;
+    }
+
+    if(p.level == 0) { p.level = 1;}
+
+    plist[indexer] = p;
+    indexer++;
+  }
+
+  io_display();
+  refresh();
+
+  int height = 10;
+    int width = 80;
+    int startY = (LINES - height) / 2;   // Center vertically
+    int startX = (COLS - width) / 2;     // Center horizontally
+
+    // Create a subwindow for the box
+    WINDOW *popupWin = newwin(height, width, startY, startX);
+    box(popupWin, 0, 0); // Create a box around the window
+
+    // Print Pokémon information in the box
+    for (int i = 0; i < indexer; i++) {
+        mvwprintw(popupWin, i + 1, 1, "%d} %s - Level: %d - Attack: %d - Defense: %d - shiny %d",
+         i + 1,
+         plist[i].name.c_str(), plist[i].level, static_cast<int>(std::round(plist[i].attack)), static_cast<int>(std::round(plist[i].defense)), plist[i].is_shiny);
+    }
+    // mvwprintw(popupWin, 1, 1, "i: %d", 0);
+    // mvwprintw(popupWin, 2, 1, "Name: %s", plist[0].name.c_str());
+    // mvwprintw(popupWin, 3, 1, "Level: %d", plist[0].level);
+    // mvwprintw(popupWin, 4, 1, "attack: %d", plist[0].attack);
+    //mvwprintw(popupWin, 2, 1, "defense: %d", plist[0].defense);
+
+    // Refresh the window to display changes
+    wrefresh(popupWin);
+
+
+    int answer;
+    int done = 0;
+    // Wait for user input to close the popup
+    while(!done){
+      answer = getch();
+      if(answer == 49 || answer == 50 || answer == 51){
+        done = 1;
+        delwin(popupWin);
+      }
+    }
+
+
+    switch (answer)
+    {
+    case 49:
+      answer = 1;
+      break;
+    case 50:
+      answer = 2;
+      break;
+    case 51:
+      answer = 3;
+      break;
+    }
+
+    world.pc.pokelist[world.pc.pindex] = plist[answer - 1];
+    world.pc.pindex++;
+  
+  // io_display();
+  // mvprintw(0, 0, "move? %s", (*io_db).movesl[world.pc.pokelist[0].moveset[1]].identifier.c_str());
+  // refresh();
+  // getch();
+}
+
+void print_player_moves(){
+  // io_display();
+  // refresh();
+
+
+  //     io_display();
+  // mvprintw(0, 0, "here");
+  // refresh();
+  // getch();
+
+  moves pm0;
+  moves pm1;
+  database db = *io_db;
+
+  int height = 10;
+    int width = 80;
+    int startY = (LINES - height) / 2;   // Center vertically
+    int startX = (COLS - width) / 2;     // Center horizontally
+
+    // Create a subwindow for the box
+    WINDOW *popupWin = newwin(height, width, startY, startX);
+    box(popupWin, 0, 0); // Create a box around the window
+
+    // Print Pokémon information in the box
+    for (int i = 0; i < world.pc.pindex; i++) {
+        pm0 = db.movesl[world.pc.pokelist[i].moveset[0]];
+        pm1 = db.movesl[world.pc.pokelist[i].moveset[1]];
+        mvwprintw(popupWin, i + 1, 1, "%d} %s - move1: %s move2: %s",
+         i + 1,
+         world.pc.pokelist[i].name.c_str(), pm0.identifier.c_str(), pm1.identifier.c_str());
+    }
+    // mvwprintw(popupWin, 1, 1, "i: %d", 0);
+    // mvwprintw(popupWin, 2, 1, "Name: %s", plist[0].name.c_str());
+    // mvwprintw(popupWin, 3, 1, "Level: %d", plist[0].level);
+    // mvwprintw(popupWin, 4, 1, "attack: %d", plist[0].attack);
+    //mvwprintw(popupWin, 2, 1, "defense: %d", plist[0].defense);
+
+    // Refresh the window to display changes
+    wrefresh(popupWin);
+
+
+    int answer;
+    int done = 0;
+    // Wait for user input to close the popup
+    while(!done){
+      answer = getch();
+      if(answer == 27 /*escape*/){
+        done = 1;
+        delwin(popupWin);
+      }
+    }
+}
+
 void pokemon_event(){
   poke p;
 
@@ -490,12 +677,14 @@ void pokemon_event(){
 
   moves m;
 
+  for(int i = 0; i < 2; i++){
     rand_moves = rand() % 844;
     m = io_db->movesl[rand_moves];
 
-  p.name = new_pokemon.identifier;
+    p.name = new_pokemon.identifier;
 
-  p.moveset[0] = m.id;
+    p.moveset[i] = m.id;
+  }
 
   pokemon_stats ps = io_db->pokemon_statsl[p.id + 1];
   p.attack = ps.base_stat;
@@ -522,9 +711,6 @@ void pokemon_event(){
 
   int distance = abs(max(world.cur_idx[dim_y], world.cur_idx[dim_x]));
 
-
-  
-
   if(distance <= 200){
     if(distance < 3){
       p.level = 1;
@@ -540,10 +726,9 @@ void pokemon_event(){
   world.pc.pokelist[world.pc.pindex] = p;
   world.pc.pindex++;
 
-
-  
-  std::string su = "name: " + new_pokemon.identifier +  " level: " + std::to_string(pm.level)+ " attack: " + std::to_string(p.attack)+ " defence: " + std::to_string(p.defense)+ " shiny: " + std::to_string(p.is_shiny);
+  std::string su = "name: " + new_pokemon.identifier +  " level: " + std::to_string(pm.level)+ " attack: " + std::to_string(static_cast<int>(std::round(p.attack)))+ " defence: " + std::to_string(static_cast<int>(std::round(p.defense)))+ " shiny: " + std::to_string(p.is_shiny);
   const char * s = su.c_str();
+
   io_display();
   mvprintw(0, 0, s);
   refresh();
@@ -743,6 +928,10 @@ void io_handle_input(pair_t dest)
       io_teleport_world(dest);
       turn_not_consumed = 0;
       break;    
+    case 'm':
+      print_player_moves();
+      turn_not_consumed = 0;
+      break;
     case 'q':
       /* Demonstrate use of the message queue.  You can use this for *
        * printf()-style debugging (though gio_db is probably a better   *
@@ -754,7 +943,7 @@ void io_handle_input(pair_t dest)
         ss = "name: ";
         ss += npclist[i]->symbol;
         ss += " pokemon: " + npclist[i]->pl[0].name;
-        ss += " index i: " + std::to_string(nextnpc);
+        //ss += " index i: " + std::to_string(nextnpc);
         io_queue_message(ss.c_str());
       }
       io_queue_message("done with the trainer list");
