@@ -3,21 +3,21 @@ CXX = g++
 ECHO = echo
 RM = rm -f
 
-TERM = "S2019"
+TERM = "F2023"
 
 CFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
-CXXFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
+CXXFLAGS = -Wall -Werror -ggdb -funroll-loops -std=c++17 -DTERM=$(TERM)
 
-LDFLAGS = 
+LDFLAGS = -lncurses
 
 BIN = poke327
-OBJS = poke327.o heap.o
+OBJS = poke327.o heap.o io.o character.o parser.o
 
 all: $(BIN) etags
 
 $(BIN): $(OBJS)
 	@$(ECHO) Linking $@
-	@$(CC) $^ -o $@ $(LDFLAGS)
+	@$(CXX) $^ -o $@ $(LDFLAGS)
 
 -include $(OBJS:.o=.d)
 
@@ -39,6 +39,6 @@ clobber: clean
 	@$(ECHO) Removing backup files
 	@$(RM) *~ \#* *pgm
 
-# etags:
-# 	@$(ECHO) Updating TAGS
-# 	@etags *.[ch]
+etags:
+	@$(ECHO) Updating TAGS
+	@etags *.[ch]

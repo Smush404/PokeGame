@@ -178,7 +178,7 @@ static void heap_consolidate(heap_t *h)
                        * and much faster than any lg calculation. */
 
   memset(a, 0, sizeof (a));
-  
+
   h->min->prev->next = NULL;
 
   for (x = n = h->min; n; x = n) {
@@ -297,7 +297,7 @@ static void heap_cascading_cut(heap_t *h, heap_node_t *n)
       n->mark = 1;
     } else {
       heap_cut(h, n, p);
-      heap_cascading_cut(h, n);
+      heap_cascading_cut(h, p);
     }
   }
 }
