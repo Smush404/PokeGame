@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <limits.h>
-
+#include <math.h>
 #include "io.h"
 #include "character.h"
 #include "poke327.h"
@@ -552,7 +552,7 @@ void pokemon_start(){
     for (int i = 0; i < indexer; i++) {
         mvwprintw(popupWin, i + 1, 1, "%d} %s - Level: %d - Attack: %d - Defense: %d - shiny %d",
          i + 1,
-         plist[i].name.c_str(), plist[i].level, static_cast<int>(std::round(plist[i].attack)), static_cast<int>(std::round(plist[i].defense)), plist[i].is_shiny);
+         plist[i].name.c_str(), plist[i].level, static_cast<int>(round(plist[i].attack)), static_cast<int>(round(plist[i].defense)), plist[i].is_shiny);
     }
     // mvwprintw(popupWin, 1, 1, "i: %d", 0);
     // mvwprintw(popupWin, 2, 1, "Name: %s", plist[0].name.c_str());

@@ -1,5 +1,5 @@
 #ifndef POKE327_H
-# define POKE327_H
+#define POKE327_H
 
 # include <cstdlib>
 # include <cassert>
