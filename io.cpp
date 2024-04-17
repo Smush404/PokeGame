@@ -10,6 +10,7 @@
 #include "poke327.h"
 #include "parser.h"
 #include "PQ.h"
+#include <iostream>
 
 #define TRAINER_LIST_FIELD_WIDTH 46
 
@@ -487,7 +488,19 @@ int playerturn(char battlename, PQ_t *bpq)
     // }
     // else{
     bpq->items[1].np->pl[bpq->items[1].active_pokemon_index].hp = bpq->items[1].np->pl[bpq->items[1].active_pokemon_index].hp - damage; // crashes when less then 0??????????
-    //}
+                                                                                                                                        //}
+
+    box(extrawindow, 0, 0); // Create a box around the window
+
+    mvprintw(8, 20, "Battle against a %c", bpq->items[1].np->pl[bpq->items[1].active_pokemon_index].name.c_str());
+    // mvprintw( 9, 20, "Pick your next move!");
+    mvprintw(9, 20, "emeny hp: %d", bpq->items[1].np->pl[bpq->items[1].active_pokemon_index].hp);
+    mvprintw(10, 20, "damage: %d", (int)damage);
+    mvprintw(11, 20, "fainted: %d", bpq->items[1].np->pl[bpq->items[1].active_pokemon_index].is_fainted);
+    mvprintw(12, 20, "press any key to contune");
+    wrefresh(extrawindow);
+    getch();
+
     if (bpq->items[1].np->pl[bpq->items[1].active_pokemon_index].hp <= 0)
     {
       bpq->items[1].np->pl[bpq->items[1].active_pokemon_index].is_fainted = 1;
@@ -507,24 +520,141 @@ int playerturn(char battlename, PQ_t *bpq)
       }
     }
 
-    box(extrawindow, 0, 0); // Create a box around the window
-
-    mvprintw(8, 20, "Battle against a %c", bpq->items[1].np->pl[bpq->items[1].active_pokemon_index].name.c_str());
-    // mvprintw( 9, 20, "Pick your next move!");
-    mvprintw(9, 20, "emeny hp: %d", bpq->items[1].np->pl[bpq->items[1].active_pokemon_index].hp);
-    mvprintw(10, 20, "damage: %d", (int)damage);
-    mvprintw(11, 20, "fainted?: %d", bpq->items[1].np->pl[bpq->items[1].active_pokemon_index].is_fainted);
-    mvprintw(12, 20, "press any key to contune");
-    wrefresh(extrawindow);
-    getch();
-
     break;
   case '2': // bag
+    while (again)
+    {
+      box(extrawindow, 0, 0); // Create a box around the window
 
+      mvprintw(8, 20, "what do you want to use?");
+      mvprintw(9, 20, "pick one");
+      mvprintw(10, 20, "1) Revive");
+      mvprintw(11, 20, "2) Potion");
+      // mvprintw(10, 20, "1) pokeball");
+
+      wrefresh(extrawindow);
+
+      refresh();
+      i = getchar();
+      i = i - '0';
+
+      if (i == 1)
+      {
+        // bpq->items[0].p->pokelist[0].is_fainted = 1;
+        // bpq->items[0].p->pokelist[0].hp = 0;
+
+        box(extrawindow, 0, 0); // Create a box around the window
+
+        mvprintw(8, 20, "what pokemon do you want to use?");
+        mvprintw(9, 20, "pick one.  Choose wisely.");
+        for (int i = 0; i < bpq->items[0].p->pindex; i++)
+        {
+          mvprintw(10 + i, 20, "%d) %s - hp: %d", i + 1, bpq->items[0].p->pokelist[i].name.c_str(), (int)bpq->items[0].p->pokelist[i].hp);
+        }
+        wrefresh(extrawindow);
+
+        refresh();
+
+        int i = getchar() - '0';
+
+        if (!bpq->items[0].p->pokelist[(int)i].is_fainted)
+        {
+          bpq->items[0].p->pokelist[i].is_fainted = 0;
+          bpq->items[0].p->pokelist[i].hp = bpq->items[0].p->pokelist[i].max_hp * bpq->items[0].p->inv_revive.back().heathling;
+
+          if (bpq->items[0].p->inv_revive.size() > 1)
+          {
+            bpq->items[0].p->inv_revive.resize(bpq->items[0].p->inv_revive.size() - 1);
+            
+          }
+          else
+          {
+            bpq->items[0].p->inv_revive.clear();
+          }
+          // revive pokemone if not possible then let them retry
+          //      box(extrawindow, 0, 0); // Create a box around the window
+
+          // mvprintw(8, 20, "Battle against a %c", bpq->items[1].np->pl[bpq->items[0].active_pokemon_index].name.c_str());
+          // // mvprintw( 9, 20, "Pick your next move!");
+          // mvprintw(9, 20, "hp: %d", bpq->items[1].np->pl[bpq->items[0].active_pokemon_index].hp);
+          // mvprintw(10, 20, "damage: %d", (int)damage);
+          // mvprintw(11, 20, "fainted: %d", bpq->items[1].np->pl[bpq->items[0].active_pokemon_index].is_fainted);
+          // mvprintw(12, 20, "press any key to contune");
+          // wrefresh(extrawindow);
+          // getch();
+          again = 0;
+        }
+      }
+      else if (i == 2)
+      {
+        again = 0;
+        bpq->items[0].p->pokelist[0].hp = 0; //debug
+        box(extrawindow, 0, 0); // Create a box around the window
+
+        mvprintw(8, 20, "what pokemon do you want to use?");
+        mvprintw(9, 20, "pick one.  Choose wisely.");
+        for (int i = 0; i < bpq->items[0].p->pindex; i++)
+        {
+          mvprintw(10 + i, 20, "%d) %s - hp: %d", i + 1, bpq->items[0].p->pokelist[i].name.c_str(), (int)bpq->items[0].p->pokelist[i].hp);
+        }
+        wrefresh(extrawindow);
+
+        refresh();
+
+        int i = getchar() - '0';
+
+        if (bpq->items[0].p->pokelist[i].hp <= bpq->items[0].p->pokelist[i].max_hp)
+        {
+          bpq->items[0].p->pokelist[i].hp += ceil(bpq->items[0].p->inv_potion.back().heathling);
+
+          if (bpq->items[0].p->inv_potion.size() > 1)
+          {
+            bpq->items[0].p->inv_potion.resize(bpq->items[0].p->inv_potion.size() - 1);
+          }
+          else
+          {
+            bpq->items[0].p->inv_potion.clear();
+          }
+
+        }
+        else{again = 1;}
+
+          box(extrawindow, 0, 0); // Create a box around the window
+
+          mvprintw(8, 20, "Battle against a %c", bpq->items[1].np->pl[bpq->items[0].active_pokemon_index].name.c_str());
+          // mvprintw( 9, 20, "Pick your next move!");
+          mvprintw(9, 20, "hp: %d", bpq->items[1].np->pl[bpq->items[0].active_pokemon_index].hp);
+          mvprintw(11, 20, "fainted: %d", bpq->items[1].np->pl[bpq->items[0].active_pokemon_index].is_fainted);
+          mvprintw(12, 20, "press any key to contune");
+          wrefresh(extrawindow);
+          getch();
+      }
+    }
     break;
   case '3': // run
-    delwin(popupWin);
-    return -1;
+    // if (rand() % 10 <= 7 )
+    // {
+    //   delwin(extrawindow);
+    //   return -1;
+    // }
+    // else
+    // {
+    //   extrawindow = newwin(height, width, startY, startX);
+    //   box(extrawindow, 0, 0); // Create a box around the window
+
+    //   mvprintw(8, 20, "failed to flee");
+
+    //   getch();
+    // }
+    // delwin(extrawindow);
+        // {
+      extrawindow = newwin(height, width, startY, startX);
+      box(extrawindow, 0, 0); // Create a box around the window
+
+      mvprintw(8, 20, "failed to flee, can not flee trainers");
+
+      getch();
+        delwin(extrawindow);
     break;
 
   case '4': // switch
@@ -556,7 +686,71 @@ int playerturn(char battlename, PQ_t *bpq)
   delwin(extrawindow);
   return 0;
 }
+int npcturn(PQ_t *bpq){
 
+  int randomchoose = rand() % 10;
+  int has = 0;
+   int height = 10;
+  int width = 80;
+  int startY = (LINES - height) / 2; // Center vertically
+  int startX = (COLS - width) / 2;   // Center horizontally
+  WINDOW *extrawindow = newwin(height, width, startY, startX); 
+
+  if(randomchoose <= 7){
+    int damage = bpq->items[0].np->pl[bpq->items[0].active_pokemon_index].attack + 1;
+    
+    bpq->items[1].p->pokelist[bpq->items[1].active_pokemon_index].hp = bpq->items[1].p->pokelist[bpq->items[1].active_pokemon_index].hp - damage; // crashes when less then 0??????????
+    
+     box(extrawindow, 0, 0); // Create a box around the window
+
+          mvprintw(8, 20, "your pokemon: %c", bpq->items[1].p->pokelist[bpq->items[1].active_pokemon_index].name.c_str());
+          // mvprintw( 9, 20, "Pick your next move!");
+          mvprintw(9, 20, "hp: %d", bpq->items[1].p->pokelist[bpq->items[1].active_pokemon_index].hp);
+          mvprintw(11, 20, "fainted: %d", bpq->items[1].p->pokelist[bpq->items[1].active_pokemon_index].is_fainted);
+          mvprintw(12, 20, "press any key to contune");
+          wrefresh(extrawindow);
+          
+          getch();
+
+
+    if (bpq->items[1].p->pokelist[bpq->items[1].active_pokemon_index].hp <= 0)
+    {
+      bpq->items[1].p->pokelist[bpq->items[1].active_pokemon_index].is_fainted = 1;
+      for (int i = 0; i < bpq->items[1].p->pindex; i++)
+      {
+        if (!bpq->items[1].p->pokelist[i].is_fainted)
+        {
+          bpq->items[1].active_pokemon_index = i;
+          has = 1;
+        }
+      }
+
+      if (!has)
+      {
+        return -2;
+      }
+    }
+  }
+  else if(randomchoose < 8){
+    //bag
+    bpq->items[0].np->pl[bpq->items[0].active_pokemon_index].hp += 20;
+  }
+  else if(randomchoose < 9){
+    //flee
+    return -1;
+  }
+  else if(randomchoose <= 10){
+    //switch
+    for(int i = 0; i < bpq->items[0].np->pindex; i++){
+      if(bpq->items[0].np->pl[i].hp > 0){
+        bpq->items[0].active_pokemon_index = i;
+      }
+    }
+
+    return -1;
+  }
+  return 0;
+}
 void io_battle(character *aggressor, character *defender)
 {
   npc *n = (npc *)((aggressor == &world.pc) ? defender : aggressor);
@@ -564,6 +758,11 @@ void io_battle(character *aggressor, character *defender)
   PQ bpq;
   char battlename;
   item_t current;
+
+        int height = 10;
+        int width = 80;
+        int startY = (LINES - height) / 2; // Center vertically
+        int startX = (COLS - width) / 2;   // Center horizontally
   PQ_init(&bpq); // init PQ for battle
 
   switch (aggressor->symbol)
@@ -639,11 +838,6 @@ void io_battle(character *aggressor, character *defender)
           n->mtype = move_wander;
         }
 
-        int height = 10;
-        int width = 80;
-        int startY = (LINES - height) / 2; // Center vertically
-        int startX = (COLS - width) / 2;   // Center horizontally
-
         // Create a subwindow for the box
         WINDOW *popupWin = newwin(height, width, startY, startX);
         box(popupWin, 0, 0); // Create a box around the window
@@ -666,7 +860,24 @@ void io_battle(character *aggressor, character *defender)
       break;
 
     default:
-      // npcturn();
+      int num = npcturn(&bpq);
+      if(num == -2){
+        nowin = 1;
+                WINDOW *popupWin = newwin(height, width, startY, startX);
+        box(popupWin, 0, 0); // Create a box around the window
+
+        mvprintw(11, 20, "You lose I crash now");
+        mvprintw(12, 20, "press any key to contune");
+        wrefresh(popupWin);
+
+        getch();
+
+        delwin(popupWin);
+        
+        refresh();
+        std::cerr << "you lose! Exiting program...\n";
+        world.quit = 1;
+      }
       nowin = 0;
       break;
 
@@ -676,7 +887,7 @@ void io_battle(character *aggressor, character *defender)
       }
       else
       {
-        enque(&bpq, bpq.items[1].seq_num + 2, bpq.items[1].np, nullptr, nullptr);
+        enque(&bpq, bpq.items[0].seq_num + 2, bpq.items[0].np, nullptr, nullptr);
       }
 
       deque(&bpq);
@@ -823,6 +1034,7 @@ void pokemon_start()
   poke p;
   pokemon new_pokemon;
 
+  inv_item temp;
   pokemon_stats ps;
 
   int indexer = 0;
@@ -858,6 +1070,7 @@ void pokemon_start()
     p.exp = new_pokemon.base_experience;
     ps = io_db->pokemon_statsl[p.id];
     p.hp = ps.base_stat;
+    p.max_hp = ps.base_stat;
 
     ps = io_db->pokemon_statsl[p.id + 3];
     p.sp_attack = ps.base_stat;
@@ -881,6 +1094,32 @@ void pokemon_start()
   io_display();
   refresh();
 
+  inv_item tmp;
+  for (int i = 0; i < 15; i++)
+  { // 15 pokeballs
+    tmp.name = "pokeball";
+    tmp.catch_chance = .6;
+
+    world.pc.inv_pokeball.push_back(tmp);
+  }
+
+  for (int i = 0; i < 5; i++)
+  { // 5 revives
+    tmp.name = "revive";
+    tmp.heathling = .5;
+    tmp.revivable = 1;
+
+    world.pc.inv_revive.push_back(tmp);
+  }
+
+  for (int i = 0; i < 5; i++)
+  { // 5 revives
+    tmp.name = "healing potions";
+    tmp.heathling = 20;
+
+    world.pc.inv_potion.push_back(tmp);
+  }
+
   int height = 10;
   int width = 80;
   int startY = (LINES - height) / 2; // Center vertically
@@ -897,13 +1136,7 @@ void pokemon_start()
               i + 1,
               plist[i].name.c_str(), plist[i].level, static_cast<int>(round(plist[i].attack)), static_cast<int>(round(plist[i].defense)), plist[i].is_shiny);
   }
-  // mvwprintw(popupWin, 1, 1, "i: %d", 0);
-  // mvwprintw(popupWin, 2, 1, "Name: %s", plist[0].name.c_str());
-  // mvwprintw(popupWin, 3, 1, "Level: %d", plist[0].level);
-  // mvwprintw(popupWin, 4, 1, "attack: %d", plist[0].attack);
-  // mvwprintw(popupWin, 2, 1, "defense: %d", plist[0].defense);
 
-  // Refresh the window to display changes
   wrefresh(popupWin);
 
   int answer;
@@ -1032,6 +1265,7 @@ void pokemon_event()
   p.exp = new_pokemon.base_experience;
   ps = io_db->pokemon_statsl[p.id];
   p.hp = ps.base_stat;
+  p.max_hp = ps.base_stat;
 
   ps = io_db->pokemon_statsl[p.id + 3];
   p.sp_attack = ps.base_stat;
@@ -1073,16 +1307,19 @@ void pokemon_event()
   p.sp_defence = other_div(p.sp_defence, p.iv, p.level);
   p.hp = hp_div(p.hp, p.iv, p.level);
 
-  world.pc.pokelist[world.pc.pindex] = p;
-  world.pc.pindex++;
+  if (world.pc.pindex < 6)
+  {
+    world.pc.pokelist[world.pc.pindex] = p;
+    world.pc.pindex++;
 
-  std::string su = "name: " + new_pokemon.identifier + " level: " + std::to_string(p.level) + " attack: " + std::to_string(static_cast<int>(std::round(p.attack))) + " defence: " + std::to_string(static_cast<int>(std::round(p.defense))) + " shiny: " + std::to_string(p.is_shiny);
-  const char *s = su.c_str();
+    std::string su = "name: " + new_pokemon.identifier + " level: " + std::to_string(p.level) + " attack: " + std::to_string(static_cast<int>(std::round(p.attack))) + " defence: " + std::to_string(static_cast<int>(std::round(p.defense))) + " shiny: " + std::to_string(p.is_shiny);
+    const char *s = su.c_str();
 
-  io_display();
-  mvprintw(0, 0, s);
-  refresh();
-  getch();
+    io_display();
+    mvprintw(0, 0, s);
+    refresh();
+    getch();
+  }
 }
 
 uint32_t move_pc_dir(uint32_t input, pair_t dest)

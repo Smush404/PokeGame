@@ -2,13 +2,14 @@
 # define CHARACTER_H
 
 # include <cstdint>
+#include <vector>
+#include <string>
 
 # include "pair.h"
 
-#include <string>
 #define DIJKSTRA_PATH_MAX (INT_MAX / 2)
 #define NO_NPCS 50
-#define NUM_POKEMON 50
+#define NUM_POKEMON 6
 
 typedef enum __attribute__ ((__packed__)) movement_type {
   move_hiker,
@@ -42,15 +43,21 @@ class character {
   int seq_num;
 };
 
-class poke: public character{
+class poke{
   public:
-    int hp, attack, defense, speed, sp_attack, sp_defence;
+    int hp, max_hp, attack, defense, speed, sp_attack, sp_defence;
     int id, exp, level, iv, is_shiny, is_fainted;
     int moveset[2];
     std::string name;
 };
 
-
+class inv_item{
+  public:
+  std::string name;
+  double heathling;
+  int revivable;
+  float catch_chance;
+};
 
 class npc : public character {
  public:
@@ -65,6 +72,9 @@ class npc : public character {
 class pc : public character {
   public:
     int pindex = 0;
+    std::vector<inv_item> inv_pokeball;
+    std::vector<inv_item> inv_revive;
+    std::vector<inv_item> inv_potion;
     poke pokelist[NUM_POKEMON];
 };
 
