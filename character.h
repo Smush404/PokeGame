@@ -42,10 +42,10 @@ class character {
   int seq_num;
 };
 
-class poke{
+class poke: public character{
   public:
-    double hp, attack, defense, speed, sp_attack, sp_defence;
-    int id, exp, level, iv, is_shiny;
+    int hp, attack, defense, speed, sp_attack, sp_defence;
+    int id, exp, level, iv, is_shiny, is_fainted;
     int moveset[2];
     std::string name;
 };
