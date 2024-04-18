@@ -25,12 +25,12 @@ void PQ_init(PQ_t *pqr)
   pqr->size = 0;
 }
 
-void enque(PQ_t *pqr, int seq_num, npc *input_nc, pc *input_p, poke *input_poke)
+void enque(PQ_t *pqr, int seq_num, npc *input_nc, pc *input_p, poke *input_poke, int active)
 {
   int size = pqr->size;
 
   pqr->items[size].seq_num = seq_num;
-  pqr->items[size].active_pokemon_index = 0;
+  pqr->items[size].active_pokemon_index = active;
   pqr->items[size].np = input_nc;
   pqr->items[size].p = input_p;
   pqr->items[size].pokemon = input_poke;

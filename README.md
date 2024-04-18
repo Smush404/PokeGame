@@ -7,15 +7,17 @@ An ACII game a lot like Pokemon.
 % make
 # This makes the executable file "poke327"
 
-% ./poke327 <file name> 
-# EXSAMPLE ./poke327 moves.csv
-# This runs the program with the file name that should be printed to the screen
+% ./poke327
 ```
 
 ## BUGS
-1) not really a bug but formating is off becuase it just for debuging and I dont have the time to make a million formating methods. 
+1) super buggy and alot of errors, I did not have alot of time with this one so it is going to be super iffy but main functions are there but one. 
 
-2) if it can not find the database it will tell you that it can not other then that the pathing on the server makes no sense to me i did my best. the important thing is that the datbase should build if the CSV files are found. if there is a problem with this let me know i can come to office hours
+2) I made this more like a dark souls pokemon so when you lose all your pokemon that its and the game leaves. goodluck, I hope you like roguelikes :)
 
+3) only feature is not added is the pokemon battle with wild pokes, I have the code bases down but its more worth it to have not have it in and better to go for pvt battles. im come to office hours to show the code i did have down.
+
+## CONTACT
+I will be waiting for the submission, so feel free to leave comments and I plan on going to office hours to whover grades this.
 
 
