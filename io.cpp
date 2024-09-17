@@ -421,7 +421,10 @@ void io_pokemart()
 
 void io_pokemon_center()
 {
-  mvprintw(0, 0, "Welcome to the Pokemon Center.  How can Nurse Joy assist you?");
+  mvprintw(0, 0, "Welcome to the Pokemon Center.  all pokemon  are healed");
+  for(int i = 0; i < world.pc.pindex; i++){
+    world.pc.pokelist[i].hp = world.pc.pokelist[i].max_hp;
+  }
   refresh();
   getch();
 }
@@ -1659,14 +1662,15 @@ uint32_t move_pc_dir(uint32_t input, pair_t dest)
       // Some kind of greeting here would be nice
       return 1;
     }
-    else if ((dynamic_cast<npc *>(world.cur_map->cmap[dest[dim_y]][dest[dim_x]])) && (dynamic_cast<npc *>(world.cur_map->cmap[dest[dim_y]][dest[dim_x]]))->pl[0].hp >= 0)
+    else if ((dynamic_cast<npc *>(world.cur_map->cmap[dest[dim_y]][dest[dim_x]])) 
+    && (dynamic_cast<npc *>(world.cur_map->cmap[dest[dim_y]][dest[dim_x]]))->pl[0].hp >= 0)
     {
       io_battle(&world.pc, world.cur_map->cmap[dest[dim_y]][dest[dim_x]]);
       // Not actually moving, so set dest back to PC position
       dest[dim_x] = world.pc.pos[dim_x];
       dest[dim_y] = world.pc.pos[dim_y];
     }
-    else{
+    else if(world.cur_map->cmap[dest[dim_y]][dest[dim_x]] != NULL){
       (dynamic_cast<npc *>(world.cur_map->cmap[dest[dim_y]][dest[dim_x]]))->mtype = move_wander;
     }
   }
